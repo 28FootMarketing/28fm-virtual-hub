@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>28 Foot Marketing | Virtual Hub</title>
+  <meta name="description" content="28 Foot Marketing Virtual Meeting Hub — Digital Marketing Innovation & Strategy" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #040810;
+      --bg2: #040d1a;
+      --cyan: #00d4ff;
+      --text: #e0f0ff;
+      --dim: rgba(224,240,255,0.45);
+      --border: rgba(0,212,255,0.18);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+    }
+
+    input, button { font-family: inherit; }
+    input::placeholder { color: rgba(255,255,255,0.25); }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 2px; }
+
+    /* Scanlines */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,212,255,0.012) 2px, rgba(0,212,255,0.012) 4px
+      );
+    }
+
+    /* Particles */
+    .particle {
+      position: fixed; border-radius: 50%; background: var(--cyan);
+      pointer-events: none; z-index: 1; opacity: 0;
+      animation: floatUp var(--dur) var(--delay) ease-in-out infinite;
+    }
+
+    @keyframes floatUp {
+      0%   { opacity: 0;   transform: translateY(0); }
+      15%  { opacity: 0.7; }
+      85%  { opacity: 0.3; }
+      100% { opacity: 0;   transform: translateY(-90px); }
+    }
+
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 24px rgba(0,212,255,0.2); }
+      50%       { box-shadow: 0 0 50px rgba(0,212,255,0.5), 0 0 90px rgba(0,212,255,0.15); }
+    }
+
+    @keyframes seatPulse {
+      0%, 100% { opacity: 0.45; transform: translate(-50%,-50%) scale(1); }
+      50%       { opacity: 0.85; transform: translate(-50%,-50%) scale(1.06); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── SCREEN MANAGEMENT ── */
+    .screen { display: none; height: 100vh; flex-direction: column; animation: fadeIn 0.35s ease; }
+    .screen.active { display: flex; }
+
+    /* ── NAME ENTRY ── */
+    #screen-name {
+      align-items: center; justify-content: center; gap: 36px;
+      background: radial-gradient(ellipse at center, #0a1628 0%, var(--bg) 70%);
+    }
+
+    .logo-ring {
+      width: 130px; height: 130px; border-radius: 50%;
+      background: radial-gradient(circle, #001833, var(--bg));
+      border: 2px solid rgba(0,212,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; animation: glowPulse 3s ease-in-out infinite;
+    }
+    .logo-ring img { width: 92%; height: 92%; object-fit: contain; border-radius: 50%; }
+
+    .brand-label { text-align: center; }
+    .brand-label .sub  { font-size: 9px; letter-spacing: 0.5em; color: rgba(0,212,255,0.6); margin-bottom: 6px; }
+    .brand-label .main { font-size: 22px; font-weight: 700; letter-spacing: 0.18em; }
+    .brand-label .tag  { font-size: 9px; color: rgba(255,255,255,0.25); letter-spacing: 0.2em; margin-top: 5px; }
+
+    .name-form { display: flex; flex-direction: column; gap: 10px; width: 300px; }
+    .name-form input {
+      background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 4px; padding: 13px 16px; color: var(--text);
+      font-size: 11px; letter-spacing: 0.25em; outline: none; text-align: center;
+      transition: border-color 0.2s;
+    }
+    .name-form input:focus { border-color: rgba(0,212,255,0.5); }
+    .name-form button {
+      background: linear-gradient(135deg, rgba(0,212,255,0.12), #003d60);
+      border: 1px solid rgba(0,212,255,0.4); border-radius: 4px;
+      padding: 13px 16px; color: var(--cyan);
+      font-size: 10px; letter-spacing: 0.35em; cursor: pointer; transition: all 0.2s;
+    }
+    .name-form button:hover { background: linear-gradient(135deg, rgba(0,212,255,0.2), #005080); }
+
+    /* ── HUB ── */
+    #screen-hub { background: var(--bg); }
+
+    .hub-header {
+      padding: 18px 28px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(180deg, var(--bg2), transparent);
+      flex-shrink: 0;
+    }
+    .hub-header .brand { display: flex; align-items: center; gap: 14px; }
+    .hub-header .brand .logo-sm {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.3); overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,212,255,0.2);
+    }
+    .hub-header .brand .logo-sm img { width: 100%; height: 100%; object-fit: cover; }
+    .hub-header .brand .name .top { font-size: 8px; letter-spacing: 0.45em; color: rgba(0,212,255,0.55); }
+    .hub-header .brand .name .bot { font-size: 13px; letter-spacing: 0.18em; }
+    .user-badge { font-size: 9px; color: rgba(0,212,255,0.5); letter-spacing: 0.2em; }
+
+    .hub-body { flex: 1; padding: 44px 28px; display: flex; flex-direction: column; gap: 32px; align-items: center; overflow-y: auto; }
+    .hub-title { text-align: center; }
+    .hub-title .hint { font-size: 9px; letter-spacing: 0.5em; color: rgba(0,212,255,0.35); margin-bottom: 10px; }
+    .hub-title .heading { font-size: 20px; letter-spacing: 0.12em; }
+
+    .rooms-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+      max-width: 680px; width: 100%;
+    }
+    .room-card {
+      border-radius: 8px; padding: 26px 22px; cursor: pointer;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .room-card .room-icon { font-size: 26px; margin-bottom: 10px; }
+    .room-card .room-name { font-size: 11px; letter-spacing: 0.22em; margin-bottom: 5px; }
+    .room-card .room-desc { font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; }
+    .room-card .room-enter {
+      position: absolute; bottom: 12px; right: 14px;
+      font-size: 8px; letter-spacing: 0.2em; opacity: 0.5;
+    }
+    .room-card:hover { transform: translateY(-2px); }
+
+    /* ── ROOM ── */
+    #screen-room { background: var(--bg); }
+
+    .room-header {
+      padding: 12px 22px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(0,212,255,0.12);
+    }
+    .room-header .left { display: flex; align-items: center; gap: 12px; }
+    .room-header .right { display: flex; gap: 8px; align-items: center; }
+
+    .btn-back, .btn-ctrl {
+      border-radius: 4px; padding: 7px 12px; cursor: pointer;
+      font-size: 9px; letter-spacing: 0.15em; transition: all 0.2s;
+      font-family: 'Courier New', monospace;
+    }
+    .btn-back {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.45);
+    }
+    .btn-back:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
+    .btn-ctrl { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4); }
+    .btn-ctrl.active { }
+
+    .live-indicator { font-size: 8px; letter-spacing: 0.2em; margin-right: 4px; color: rgba(255,255,255,0.25); }
+    .live-indicator.live { color: #10b981; }
+
+    .room-body { flex: 1; display: flex; overflow: hidden; }
+
+    /* Meeting floor */
+    .meeting-floor {
+      flex: 1; position: relative; overflow: hidden;
+    }
+    .floor-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, var(--bg) 65%);
+    }
+    .floor-grid {
+      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.05;
+    }
+
+    /* Center table */
+    .center-table {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 140px; height: 90px; border-radius: 45px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    }
+    .center-table .tlogo {
+      width: 34px; height: 34px; border-radius: 50%; overflow: hidden; opacity: 0.6;
+    }
+    .center-table .tlogo img { width: 100%; height: 100%; object-fit: cover; }
+    .center-table .tlabel { font-size: 7px; letter-spacing: 0.18em; opacity: 0.5; }
+
+    /* Seats */
+    .seat {
+      position: absolute; transform: translate(-50%, -50%);
+      cursor: pointer; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .seat-circle {
+      border-radius: 50%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      transition: all 0.25s ease;
+    }
+    .seat-circle.empty {
+      width: 54px; height: 54px;
+      background: rgba(0,212,255,0.03);
+      border: 1.5px dashed rgba(0,212,255,0.2);
+      animation: seatPulse 3s ease-in-out infinite;
+    }
+    .seat-circle.occupied {
+      width: 66px; height: 66px;
+    }
+    .seat-circle.is-you {
+      width: 72px; height: 72px;
+      border: 2px solid #00d4ff !important;
+      box-shadow: 0 0 24px rgba(0,212,255,0.4), 0 0 48px rgba(0,212,255,0.15);
+    }
+    .seat-emoji { font-size: 20px; }
+    .seat-circle.empty .seat-emoji { font-size: 15px; filter: grayscale(1) opacity(0.25); }
+    .seat-name {
+      font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase;
+      max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .seat-label {
+      margin-top: 4px; font-size: 7px; letter-spacing: 0.15em;
+      color: rgba(0,212,255,0.25); white-space: nowrap;
+    }
+    .seat-you-label {
+      margin-top: 4px; font-size: 8px; letter-spacing: 0.15em;
+      color: #00d4ff; text-shadow: 0 0 8px #00d4ff; white-space: nowrap;
+    }
+
+    .floor-count {
+      position: absolute; bottom: 20px; left: 20px;
+      font-size: 8px; letter-spacing: 0.2em; color: rgba(0,212,255,0.35);
+    }
+    .floor-hint {
+      position: absolute; bottom: 20px; right: 20px;
+      font-size: 8px; letter-spacing: 0.2em; color: rgba(255,255,255,0.15);
+    }
+
+    /* Chat panel */
+    .chat-panel {
+      width: 270px; display: flex; flex-direction: column;
+      background: rgba(4,8,16,0.96); animation: fadeIn 0.2s ease;
+    }
+    .chat-header {
+      padding: 12px 16px; font-size: 8px; letter-spacing: 0.35em;
+      flex-shrink: 0;
+    }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg-from { font-size: 7px; letter-spacing: 0.2em; margin-bottom: 3px; }
+    .chat-msg-text { font-size: 10px; line-height: 1.5; }
+    .chat-input-row { padding: 10px; display: flex; gap: 6px; flex-shrink: 0; }
+    .chat-input-row input {
+      flex: 1; border-radius: 3px; padding: 8px 10px; color: var(--text);
+      font-size: 9px; letter-spacing: 0.1em; outline: none;
+      font-family: 'Courier New', monospace;
+    }
+    .chat-send { border-radius: 3px; padding: 8px 10px; cursor: pointer; font-size: 10px; }
+  </style>
+</head>
+<body>
+
+<!-- Particles injected by JS -->
+<div id="particles"></div>
+
+<!-- ── SCREEN: NAME ENTRY ── -->
+<div id="screen-name" class="screen active">
+  <div class="logo-ring">
+    <img src="/logo.png" alt="28FM" onerror="this.style.display='none'" />
+  </div>
+  <div class="brand-label">
+    <div class="sub">28 FOOT MARKETING</div>
+    <div class="main">VIRTUAL HUB</div>
+    <div class="tag">DIGITAL MARKETING INNOVATION & STRATEGY</div>
+  </div>
+  <div class="name-form">
+    <input id="name-input" type="text" placeholder="ENTER YOUR NAME" maxlength="30" autocomplete="off" />
+    <button id="name-enter">▸ ENTER HUB</button>
+  </div>
+</div>
+
+<!-- ── SCREEN: HUB ── -->
+<div id="screen-hub" class="screen">
+  <div class="hub-header">
+    <div class="brand">
+      <div class="logo-sm"><img src="/logo.png" alt="28FM" onerror="this.style.display='none'" /></div>
+      <div class="name">
+        <div class="top">28 FOOT MARKETING</div>
+        <div class="bot">VIRTUAL HUB</div>
+      </div>
+    </div>
+    <div class="user-badge" id="hub-user-badge">● </div>
+  </div>
+  <div class="hub-body">
+    <div class="hub-title">
+      <div class="hint">SELECT A ROOM TO ENTER</div>
+      <div class="heading">MEETING SPACES</div>
+    </div>
+    <div class="rooms-grid" id="rooms-grid"></div>
+  </div>
+</div>
+
+<!-- ── SCREEN: ROOM ── -->
+<div id="screen-room" class="screen">
+  <div class="room-header">
+    <div class="left">
+      <button class="btn-back" id="btn-leave">← HUB</button>
+      <span id="room-icon-hdr" style="font-size:16px"></span>
+      <div>
+        <div id="room-name-hdr" style="font-size:10px;letter-spacing:0.25em"></div>
+        <div id="room-desc-hdr" style="font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em"></div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="live-indicator" id="live-indicator">○ CHOOSE SEAT</div>
+      <button class="btn-ctrl" id="btn-mic">🎤 MIC OFF</button>
+      <button class="btn-ctrl" id="btn-cam">📷 CAM OFF</button>
+      <button class="btn-ctrl" id="btn-chat">💬 CHAT</button>
+    </div>
+  </div>
+  <div class="room-body">
+    <div class="meeting-floor" id="meeting-floor">
+      <div class="floor-bg" id="floor-bg"></div>
+      <svg class="floor-grid" id="floor-grid"></svg>
+      <div class="center-table" id="center-table">
+        <div class="tlogo"><img src="/logo.png" alt="" onerror="this.style.display='none'" /></div>
+        <div class="tlabel">28FM HUB</div>
+      </div>
+      <div class="floor-count" id="floor-count">0 / 6 SEATS OCCUPIED</div>
+      <div class="floor-hint" id="floor-hint">▸ CLICK A SEAT TO JOIN</div>
+    </div>
+    <div class="chat-panel" id="chat-panel" style="display:none; border-left:1px solid rgba(0,212,255,0.15)">
+      <div class="chat-header" id="chat-header">ROOM CHAT</div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-row" id="chat-input-row">
+        <input id="chat-input" type="text" placeholder="TYPE MESSAGE..." maxlength="200" autocomplete="off" />
+        <button class="chat-send" id="chat-send">▸</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL  = "%%SUPABASE_URL%%";
+const SUPABASE_KEY  = "%%SUPABASE_KEY%%";
+// ─────────────────────────────────────────────────────────────────────────────
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SESSION_ID = `sess_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+
+const ROOMS = [
+  { id:"strategy",   name:"Strategy Room",    icon:"⚡", desc:"Client Strategy & Planning",     color:"#00d4ff" },
+  { id:"recruiting", name:"RecruitAble Suite", icon:"🏆", desc:"Athlete Recruiting Sessions",    color:"#7c3aed" },
+  { id:"coaching",   name:"FTP Coaching Room", icon:"🎯", desc:"Coach Development & Mentorship", color:"#06b6d4" },
+  { id:"ops",        name:"Ops Command",       icon:"🤖", desc:"CORA / Agent Briefings",         color:"#10b981" },
+];
+
+const SEATS = [
+  { id:1, x:50, y:18 }, { id:2, x:22, y:40 }, { id:3, x:78, y:40 },
+  { id:4, x:22, y:65 }, { id:5, x:78, y:65 }, { id:6, x:50, y:85 },
+];
+
+const AVATARS = ["🧑‍💼","👩‍💼","🧑‍🏫","👨‍🎓","🧑‍🚀","👤"];
+const myAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+
+let myName = "";
+let activeRoom = null;
+let mySeatId = null;
+let micOn = false, camOn = false;
+let chatOpen = false;
+let occupants = {}; // seatId → row
+let sub = null;
+let pingInterval = null;
+
+// ─── PARTICLES ───────────────────────────────────────────────────────────────
+(function spawnParticles() {
+  const container = document.getElementById("particles");
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    p.style.cssText = `
+      left:${(i*7+13)%100}%;top:${(i*11+7)%100}%;
+      width:${i%3===0?2:1}px;height:${i%3===0?2:1}px;
+      --dur:${4+i%5}s;--delay:${(i*0.4).toFixed(1)}s;
+    `;
+    container.appendChild(p);
+  }
+})();
+
+// ─── SCREEN SWITCHER ─────────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + id).classList.add("active");
+}
+
+// ─── NAME ENTRY ──────────────────────────────────────────────────────────────
+document.getElementById("name-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") enterHub();
+});
+document.getElementById("name-enter").addEventListener("click", enterHub);
+
+function enterHub() {
+  const val = document.getElementById("name-input").value.trim();
+  if (!val) return;
+  myName = val;
+  document.getElementById("hub-user-badge").textContent = `● ${myName.toUpperCase()}`;
+  renderRooms();
+  showScreen("hub");
+}
+
+// ─── ROOMS GRID ──────────────────────────────────────────────────────────────
+function renderRooms() {
+  const grid = document.getElementById("rooms-grid");
+  grid.innerHTML = "";
+  ROOMS.forEach(room => {
+    const card = document.createElement("div");
+    card.className = "room-card";
+    card.style.cssText = `
+      background: radial-gradient(ellipse at 20% 20%, ${room.color}0e, #040d1a);
+      border: 1px solid ${room.color}2a;
+    `;
+    card.innerHTML = `
+      <div class="room-icon">${room.icon}</div>
+      <div class="room-name" style="color:${room.color}">${room.name.toUpperCase()}</div>
+      <div class="room-desc">${room.desc}</div>
+      <div class="room-enter" style="color:${room.color}">▸ ENTER</div>
+    `;
+    card.addEventListener("mouseenter", () => {
+      card.style.border = `1px solid ${room.color}55`;
+      card.style.boxShadow = `0 0 28px ${room.color}18`;
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.border = `1px solid ${room.color}2a`;
+      card.style.boxShadow = "none";
+    });
+    card.addEventListener("click", () => enterRoom(room));
+    grid.appendChild(card);
+  });
+}
+
+// ─── ENTER ROOM ──────────────────────────────────────────────────────────────
+async function enterRoom(room) {
+  activeRoom = room;
+  mySeatId = null;
+  occupants = {};
+
+  // Header
+  document.getElementById("room-icon-hdr").textContent = room.icon;
+  document.getElementById("room-name-hdr").textContent = room.name.toUpperCase();
+  document.getElementById("room-name-hdr").style.color = room.color;
+  document.getElementById("room-desc-hdr").textContent = room.desc;
+
+  // Floor atmosphere
+  document.getElementById("floor-bg").style.background =
+    `radial-gradient(ellipse at 50% 50%, ${room.color}07 0%, #040810 65%)`;
+
+  // Center table color
+  document.querySelector(".center-table").style.cssText = `
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:140px;height:90px;border-radius:45px;
+    background:radial-gradient(ellipse,${room.color}07,transparent);
+    border:1px solid ${room.color}1a;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  `;
+  document.querySelector(".center-table .tlabel").style.color = `${room.color}55`;
+
+  // Controls color
+  const btns = [document.getElementById("btn-mic"), document.getElementById("btn-cam"), document.getElementById("btn-chat")];
+  btns.forEach(b => { b.style.border = `1px solid ${room.color}33`; });
+  document.getElementById("chat-header").style.color = room.color;
+  document.getElementById("chat-header").style.borderBottom = `1px solid ${room.color}1a`;
+
+  // Grid
+  renderFloorGrid(room.color);
+
+  // Chat
+  setChatOpen(false);
+  document.getElementById("chat-messages").innerHTML = "";
+  addChatMsg("SYSTEM", `Welcome to ${room.name}. Take a seat.`);
+
+  // Load + subscribe
+  await loadPresence(room.id);
+  subscribeRoom(room.id);
+  renderSeats();
+
+  // Ping
+  if (pingInterval) clearInterval(pingInterval);
+  pingInterval = setInterval(async () => {
+    if (mySeatId) {
+      await sb.from("room_presence").update({ last_ping: new Date().toISOString() }).eq("session_id", SESSION_ID);
+    }
+  }, 20000);
+
+  showScreen("room");
+}
+
+// ─── FLOOR GRID SVG ──────────────────────────────────────────────────────────
+function renderFloorGrid(color) {
+  const svg = document.getElementById("floor-grid");
+  let html = "";
+  for (let i = 1; i < 14; i++) html += `<line x1="${i*7.14}%" y1="0" x2="${i*7.14}%" y2="100%" stroke="${color}" stroke-width="0.5"/>`;
+  for (let i = 1; i < 10; i++) html += `<line x1="0" y1="${i*11.1}%" x2="100%" y2="${i*11.1}%" stroke="${color}" stroke-width="0.5"/>`;
+  svg.innerHTML = html;
+  svg.style.opacity = "0.05";
+}
+
+// ─── LOAD PRESENCE ───────────────────────────────────────────────────────────
+async function loadPresence(roomId) {
+  const { data } = await sb.from("room_presence").select("*").eq("room_id", roomId);
+  occupants = {};
+  (data || []).forEach(row => { occupants[row.seat_id] = row; });
+}
+
+// ─── SUBSCRIBE ───────────────────────────────────────────────────────────────
+function subscribeRoom(roomId) {
+  if (sub) sb.removeChannel(sub);
+  sub = sb.channel(`room:${roomId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "room_presence", filter: `room_id=eq.${roomId}` },
+      payload => {
+        if (payload.eventType === "DELETE") {
+          Object.keys(occupants).forEach(k => {
+            if (occupants[k].id === payload.old.id) delete occupants[k];
+          });
+        } else {
+          occupants[payload.new.seat_id] = payload.new;
+          // Remove from old seat if moved
+          Object.keys(occupants).forEach(k => {
+            if (Number(k) !== payload.new.seat_id && occupants[k].session_id === payload.new.session_id) {
+              delete occupants[k];
+            }
+          });
+        }
+        renderSeats();
+      })
+    .subscribe();
+}
+
+// ─── RENDER SEATS ────────────────────────────────────────────────────────────
+function renderSeats() {
+  const floor = document.getElementById("meeting-floor");
+  document.querySelectorAll(".seat").forEach(el => el.remove());
+  const color = activeRoom?.color || "#00d4ff";
+  const count = Object.keys(occupants).length;
+
+  document.getElementById("floor-count").textContent = `${count} / ${SEATS.length} SEATS OCCUPIED`;
+  document.getElementById("floor-count").style.color = `${color}55`;
+  document.getElementById("floor-hint").style.display = mySeatId ? "none" : "block";
+
+  SEATS.forEach(seat => {
+    const occ = occupants[seat.id];
+    const isYou = mySeatId === seat.id;
+    const div = document.createElement("div");
+    div.className = "seat";
+    div.style.left = `${seat.x}%`;
+    div.style.top = `${seat.y}%`;
+
+    let circleClass = "seat-circle ";
+    circleClass += occ ? (isYou ? "is-you occupied" : "occupied") : "empty";
+
+    let circleStyle = "";
+    if (occ && !isYou) {
+      circleStyle = `background:radial-gradient(circle at 35% 35%,${color}1a,#040810);border:2px solid ${color}66;box-shadow:0 0 14px ${color}2a;`;
+    } else if (occ && isYou) {
+      circleStyle = `background:radial-gradient(circle at 35% 35%,rgba(0,212,255,0.25),#040810);`;
+    }
+
+    div.innerHTML = `
+      <div class="${circleClass}" style="${circleStyle}">
+        <span class="seat-emoji">${occ ? occ.avatar : "➕"}</span>
+        ${occ ? `<span class="seat-name" style="color:${isYou?"#00d4ff":"rgba(255,255,255,0.6)"}">${isYou?"● YOU":occ.user_name.split(" ")[0]}</span>` : ""}
+      </div>
+      ${isYou ? `<div class="seat-you-label">▸ SEATED</div>` : !occ ? `<div class="seat-label">SEAT ${seat.id}</div>` : ""}
+    `;
+    div.addEventListener("click", () => handleSeatClick(seat.id));
+    floor.appendChild(div);
+  });
+
+  // Live indicator
+  const li = document.getElementById("live-indicator");
+  if (mySeatId) {
+    li.textContent = "● LIVE";
+    li.className = "live-indicator live";
+  } else {
+    li.textContent = "○ CHOOSE SEAT";
+    li.className = "live-indicator";
+  }
+}
+
+// ─── SEAT CLICK ──────────────────────────────────────────────────────────────
+async function handleSeatClick(seatId) {
+  if (!activeRoom) return;
+
+  // Leave current seat
+  if (mySeatId === seatId) {
+    await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
+    delete occupants[seatId];
+    mySeatId = null;
+    addChatMsg("SYSTEM", `${myName} left their seat.`);
+    renderSeats();
+    return;
+  }
+
+  // Blocked
+  if (occupants[seatId] && occupants[seatId].session_id !== SESSION_ID) return;
+
+  // Remove old seat
+  if (mySeatId) {
+    await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
+    delete occupants[mySeatId];
+  }
+
+  const wasSeated = mySeatId !== null;
+  mySeatId = seatId;
+
+  const { error } = await sb.from("room_presence").upsert({
+    room_id: activeRoom.id, seat_id: seatId,
+    user_name: myName, avatar: myAvatar,
+    session_id: SESSION_ID,
+    mic_on: micOn, cam_on: camOn,
+    last_ping: new Date().toISOString(),
+  }, { onConflict: "session_id" });
+
+  if (!error) {
+    occupants[seatId] = { room_id: activeRoom.id, seat_id: seatId, user_name: myName, avatar: myAvatar, session_id: SESSION_ID, mic_on: micOn, cam_on: camOn };
+    if (!wasSeated) addChatMsg("SYSTEM", `${myName} joined the room.`);
+  }
+  renderSeats();
+}
+
+// ─── LEAVE ROOM ──────────────────────────────────────────────────────────────
+document.getElementById("btn-leave").addEventListener("click", leaveRoom);
+async function leaveRoom() {
+  if (sub) sb.removeChannel(sub);
+  if (pingInterval) clearInterval(pingInterval);
+  if (mySeatId) await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
+  mySeatId = null; activeRoom = null; occupants = {};
+  showScreen("hub");
+}
+
+// ─── MIC / CAM ───────────────────────────────────────────────────────────────
+document.getElementById("btn-mic").addEventListener("click", async () => {
+  micOn = !micOn;
+  const btn = document.getElementById("btn-mic");
+  const c = activeRoom?.color || "#00d4ff";
+  btn.textContent = micOn ? "🎤 MIC ON" : "🎤 MIC OFF";
+  btn.style.background = micOn ? `${c}18` : "rgba(255,255,255,0.03)";
+  btn.style.color = micOn ? c : "rgba(255,255,255,0.4)";
+  btn.style.border = `1px solid ${micOn ? c+"55" : c+"22"}`;
+  if (mySeatId) await sb.from("room_presence").update({ mic_on: micOn }).eq("session_id", SESSION_ID);
+});
+
+document.getElementById("btn-cam").addEventListener("click", async () => {
+  camOn = !camOn;
+  const btn = document.getElementById("btn-cam");
+  const c = activeRoom?.color || "#00d4ff";
+  btn.textContent = camOn ? "📷 CAM ON" : "📷 CAM OFF";
+  btn.style.background = camOn ? `${c}18` : "rgba(255,255,255,0.03)";
+  btn.style.color = camOn ? c : "rgba(255,255,255,0.4)";
+  btn.style.border = `1px solid ${camOn ? c+"55" : c+"22"}`;
+  if (mySeatId) await sb.from("room_presence").update({ cam_on: camOn }).eq("session_id", SESSION_ID);
+});
+
+// ─── CHAT ────────────────────────────────────────────────────────────────────
+document.getElementById("btn-chat").addEventListener("click", () => setChatOpen(!chatOpen));
+
+function setChatOpen(val) {
+  chatOpen = val;
+  const panel = document.getElementById("chat-panel");
+  const btn = document.getElementById("btn-chat");
+  const c = activeRoom?.color || "#00d4ff";
+  panel.style.display = val ? "flex" : "none";
+  btn.style.background = val ? `${c}18` : "rgba(255,255,255,0.03)";
+  btn.style.color = val ? c : "rgba(255,255,255,0.4)";
+  btn.style.border = `1px solid ${val ? c+"55" : c+"22"}`;
+}
+
+function addChatMsg(from, text) {
+  const c = activeRoom?.color || "#00d4ff";
+  const msgs = document.getElementById("chat-messages");
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="chat-msg-from" style="color:${from==="SYSTEM"?"rgba(255,255,255,0.2)":c}">${from}</div>
+    <div class="chat-msg-text" style="color:${from==="SYSTEM"?"rgba(255,255,255,0.35)":"#e0f0ff"}">${text}</div>
+  `;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+document.getElementById("chat-send").addEventListener("click", sendChat);
+document.getElementById("chat-input").addEventListener("keydown", e => { if (e.key === "Enter") sendChat(); });
+function sendChat() {
+  const val = document.getElementById("chat-input").value.trim();
+  if (!val) return;
+  addChatMsg(myName, val);
+  document.getElementById("chat-input").value = "";
+}
+
+// ─── CLEANUP ─────────────────────────────────────────────────────────────────
+window.addEventListener("beforeunload", () => {
+  sb.from("room_presence").delete().eq("session_id", SESSION_ID);
+});
+</script>
+</body>
+</html>
