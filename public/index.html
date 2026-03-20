@@ -280,6 +280,46 @@
       font-family: 'Courier New', monospace;
     }
     .chat-send { border-radius: 3px; padding: 8px 10px; cursor: pointer; font-size: 10px; }
+
+    .chat-attach {
+      border-radius: 3px; padding: 8px 10px; cursor: pointer; font-size: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.4); transition: all 0.2s; flex-shrink: 0;
+    }
+    .chat-attach:hover { border-color: rgba(0,212,255,0.4); color: rgba(0,212,255,0.8); }
+
+    .chat-msg-file {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 4px; padding: 8px 10px; margin-top: 4px;
+    }
+    .chat-msg-file .file-icon { font-size: 16px; flex-shrink: 0; }
+    .chat-msg-file .file-info { flex: 1; min-width: 0; }
+    .chat-msg-file .file-name {
+      font-size: 9px; letter-spacing: 0.1em; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; color: rgba(0,212,255,0.9);
+    }
+    .chat-msg-file .file-size { font-size: 7px; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .chat-msg-file a {
+      font-size: 8px; letter-spacing: 0.15em; color: rgba(0,212,255,0.6);
+      text-decoration: none; flex-shrink: 0;
+    }
+    .chat-msg-file a:hover { color: #00d4ff; }
+
+    .upload-progress {
+      position: absolute; bottom: 60px; left: 10px; right: 10px;
+      background: rgba(4,8,16,0.95); border: 1px solid rgba(0,212,255,0.2);
+      border-radius: 4px; padding: 10px 12px; font-size: 8px;
+      letter-spacing: 0.15em; color: rgba(0,212,255,0.7); display: none;
+    }
+    .upload-progress-bar {
+      height: 2px; background: rgba(0,212,255,0.15); border-radius: 1px;
+      margin-top: 6px; overflow: hidden;
+    }
+    .upload-progress-fill {
+      height: 100%; background: #00d4ff; width: 0%;
+      transition: width 0.3s ease; border-radius: 1px;
+    }
   </style>
 </head>
 <body>
@@ -356,10 +396,16 @@
     <div class="chat-panel" id="chat-panel" style="display:none; border-left:1px solid rgba(0,212,255,0.15)">
       <div class="chat-header" id="chat-header">ROOM CHAT</div>
       <div class="chat-messages" id="chat-messages"></div>
+      <div class="upload-progress" id="upload-progress">
+        <span id="upload-status">UPLOADING...</span>
+        <div class="upload-progress-bar"><div class="upload-progress-fill" id="upload-fill"></div></div>
+      </div>
       <div class="chat-input-row" id="chat-input-row">
         <input id="chat-input" type="text" placeholder="TYPE MESSAGE..." maxlength="200" autocomplete="off" />
+        <button class="chat-attach" id="chat-attach" title="Attach file">📎</button>
         <button class="chat-send" id="chat-send">▸</button>
       </div>
+      <input type="file" id="file-input" style="display:none" />
     </div>
   </div>
 </div>
@@ -492,6 +538,17 @@ async function enterRoom(room) {
   // Controls color
   const btns = [document.getElementById("btn-mic"), document.getElementById("btn-cam"), document.getElementById("btn-chat")];
   btns.forEach(b => { b.style.border = `1px solid ${room.color}33`; });
+
+  // Chat input styling
+  const attachBtn = document.getElementById("chat-attach");
+  attachBtn.style.border = `1px solid ${room.color}33`;
+  const chatInput = document.getElementById("chat-input");
+  chatInput.style.background = `rgba(0,0,0,0.3)`;
+  chatInput.style.border = `1px solid ${room.color}22`;
+  const chatSend = document.getElementById("chat-send");
+  chatSend.style.background = `${room.color}18`;
+  chatSend.style.border = `1px solid ${room.color}44`;
+  chatSend.style.color = room.color;
   document.getElementById("chat-header").style.color = room.color;
   document.getElementById("chat-header").style.borderBottom = `1px solid ${room.color}1a`;
 
@@ -718,6 +775,114 @@ function sendChat() {
   if (!val) return;
   addChatMsg(myName, val);
   document.getElementById("chat-input").value = "";
+}
+
+// ─── FILE UPLOAD ──────────────────────────────────────────────────────────────
+const STORAGE_BUCKET = "room-files";
+const MAX_FILE_MB = 20;
+
+document.getElementById("chat-attach").addEventListener("click", () => {
+  if (!mySeatId) {
+    addChatMsg("SYSTEM", "Take a seat before sharing files.");
+    return;
+  }
+  document.getElementById("file-input").click();
+});
+
+document.getElementById("file-input").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = "";
+
+  if (file.size > MAX_FILE_MB * 1024 * 1024) {
+    addChatMsg("SYSTEM", `File too large. Maximum size is ${MAX_FILE_MB} MB.`);
+    return;
+  }
+
+  await uploadFile(file);
+});
+
+async function uploadFile(file) {
+  const progress = document.getElementById("upload-progress");
+  const fill = document.getElementById("upload-fill");
+  const status = document.getElementById("upload-status");
+
+  progress.style.display = "block";
+  fill.style.width = "0%";
+  status.textContent = "UPLOADING...";
+
+  // Animate progress bar (indeterminate while uploading)
+  let fakeProgress = 0;
+  const progressTick = setInterval(() => {
+    fakeProgress = Math.min(fakeProgress + 8, 85);
+    fill.style.width = fakeProgress + "%";
+  }, 150);
+
+  const ext = file.name.split(".").pop();
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const filePath = `${activeRoom.id}/${SESSION_ID}_${Date.now()}_${safeName}`;
+
+  const { data, error } = await sb.storage
+    .from(STORAGE_BUCKET)
+    .upload(filePath, file, { cacheControl: "3600", upsert: false });
+
+  clearInterval(progressTick);
+
+  if (error) {
+    fill.style.width = "100%";
+    fill.style.background = "#ef4444";
+    status.textContent = "UPLOAD FAILED: " + (error.message || "Unknown error");
+    setTimeout(() => {
+      progress.style.display = "none";
+      fill.style.background = "#00d4ff";
+    }, 3000);
+    return;
+  }
+
+  fill.style.width = "100%";
+  status.textContent = "COMPLETE";
+  setTimeout(() => { progress.style.display = "none"; fill.style.width = "0%"; }, 800);
+
+  const { data: urlData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+  const publicUrl = urlData?.publicUrl;
+
+  addFileChatMsg(myName, file.name, file.size, publicUrl);
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function getFileIcon(name) {
+  const ext = name.split(".").pop().toLowerCase();
+  const icons = {
+    pdf: "📄", doc: "📝", docx: "📝", xls: "📊", xlsx: "📊",
+    ppt: "📊", pptx: "📊", jpg: "🖼️", jpeg: "🖼️", png: "🖼️",
+    gif: "🖼️", mp4: "🎬", mov: "🎬", mp3: "🎵", zip: "🗜️",
+    rar: "🗜️", txt: "📃", csv: "📊",
+  };
+  return icons[ext] || "📁";
+}
+
+function addFileChatMsg(from, fileName, fileSize, url) {
+  const c = activeRoom?.color || "#00d4ff";
+  const msgs = document.getElementById("chat-messages");
+  const wrap = document.createElement("div");
+  wrap.innerHTML = `
+    <div class="chat-msg-from" style="color:${c}">${from}</div>
+    <div class="chat-msg-file">
+      <span class="file-icon">${getFileIcon(fileName)}</span>
+      <div class="file-info">
+        <div class="file-name" title="${fileName}">${fileName}</div>
+        <div class="file-size">${formatBytes(fileSize)}</div>
+      </div>
+      ${url ? `<a href="${url}" target="_blank" rel="noopener">↗ OPEN</a>` : ""}
+    </div>
+  `;
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 // ─── CLEANUP ─────────────────────────────────────────────────────────────────
