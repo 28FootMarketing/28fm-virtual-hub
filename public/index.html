@@ -1,729 +1,978 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>28 Foot Marketing | Virtual Hub</title>
-  <meta name="description" content="28 Foot Marketing Virtual Meeting Hub — Digital Marketing Innovation & Strategy" />
-  <link rel="icon" type="image/png" href="/logo.png" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>28 Foot Marketing | Virtual Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@daily-co/daily-js"></script>
+<style>
+:root{
+  --bg:#0d0a08;--bg2:#1a1208;--bg3:#221808;
+  --gold:#f5a623;--cream:#f5e6cc;--text:#f5e6cc;
+  --border:rgba(245,166,35,0.18);
+  --dim:rgba(245,230,200,0.35);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;overflow:hidden;}
+input,button,textarea{font-family:'Share Tech Mono',monospace;}
+input::placeholder,textarea::placeholder{color:rgba(245,230,200,0.2);}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:rgba(245,166,35,0.25);border-radius:2px;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(245,166,35,0.008) 2px,rgba(245,166,35,0.008) 4px);}
 
-  <!-- Supabase JS v2 -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+@keyframes floatUp{0%{opacity:0;transform:translateY(0);}15%{opacity:0.5;}85%{opacity:0.15;}100%{opacity:0;transform:translateY(-80px);}}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 30px rgba(245,166,35,0.2),0 0 60px rgba(245,166,35,0.06);}50%{box-shadow:0 0 55px rgba(245,166,35,0.45),0 0 100px rgba(245,166,35,0.12);}}
+@keyframes seatPulse{0%,100%{opacity:0.45;transform:translate(-50%,-50%) scale(1);}50%{opacity:0.9;transform:translate(-50%,-50%) scale(1.07);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes ping{0%{transform:translate(-50%,-50%) scale(1);opacity:0.4;}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0;}}
+@keyframes borderSpin{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+@keyframes handBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes flicker{0%,100%{opacity:1;}92%{opacity:1;}93%{opacity:0.85;}95%{opacity:1;}97%{opacity:0.9;}}
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.screen{display:none;height:100vh;flex-direction:column;}
+.screen.active{display:flex;animation:fadeUp 0.4s ease;}
 
-    :root {
-      --bg: #040810;
-      --bg2: #040d1a;
-      --cyan: #00d4ff;
-      --text: #e0f0ff;
-      --dim: rgba(224,240,255,0.45);
-      --border: rgba(0,212,255,0.18);
-    }
+/* ── NAME ── */
+#screen-name{align-items:center;justify-content:center;gap:36px;
+  background:radial-gradient(ellipse at 50% 40%,#2a1a08 0%,#0d0a08 70%);}
+.logo-glow{width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#2a1800,#0d0a08);
+  border:1.5px solid rgba(245,166,35,0.35);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  animation:glowPulse 3s ease-in-out infinite;position:relative;}
+.logo-glow img{width:90%;height:90%;object-fit:contain;border-radius:50%;}
+.logo-glow::before{content:'';position:absolute;inset:-2px;border-radius:50%;z-index:-1;
+  background:linear-gradient(135deg,#f5a623,#e05c2a,#f5a623);background-size:200% 200%;
+  animation:borderSpin 4s linear infinite;opacity:0.5;}
+.brand-block{text-align:center;}
+.brand-block .eyebrow{font-size:9px;letter-spacing:0.55em;color:rgba(245,166,35,0.6);margin-bottom:8px;}
+.brand-block .wordmark{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;letter-spacing:0.12em;color:var(--cream);}
+.brand-block .tagline{font-size:8px;letter-spacing:0.22em;color:rgba(245,230,200,0.25);margin-top:8px;}
+.entry-form{display:flex;flex-direction:column;gap:10px;width:320px;}
+.entry-form input{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.25);
+  border-radius:4px;padding:14px 18px;color:var(--cream);font-size:11px;letter-spacing:0.3em;
+  outline:none;text-align:center;transition:border-color 0.2s,box-shadow 0.2s;}
+.entry-form input:focus{border-color:rgba(245,166,35,0.6);box-shadow:0 0 20px rgba(245,166,35,0.1);}
+.entry-form button{background:linear-gradient(135deg,rgba(245,166,35,0.18),rgba(90,45,0,0.8));
+  border:1px solid rgba(245,166,35,0.5);border-radius:4px;padding:14px 18px;color:var(--gold);
+  font-size:10px;letter-spacing:0.4em;cursor:pointer;font-family:'Orbitron',monospace;font-weight:700;}
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Courier New', Courier, monospace;
-      overflow: hidden;
-    }
+/* ── LEAD ── */
+#screen-lead{align-items:center;justify-content:center;gap:28px;background:radial-gradient(ellipse at 50% 40%,#2a1a08 0%,#0d0a08 70%);}
+.lead-form{display:flex;flex-direction:column;gap:10px;width:320px;}
+.lead-form .lead-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:0.15em;text-align:center;color:var(--gold);margin-bottom:6px;}
+.lead-form .lead-sub{font-size:8px;letter-spacing:0.2em;color:var(--dim);text-align:center;margin-bottom:4px;}
+.lead-form input{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:4px;padding:12px 16px;color:var(--cream);font-size:10px;letter-spacing:0.2em;outline:none;transition:border-color 0.2s;}
+.lead-form input:focus{border-color:rgba(245,166,35,0.5);}
+.lead-form button{background:linear-gradient(135deg,rgba(245,166,35,0.18),rgba(90,45,0,0.8));border:1px solid rgba(245,166,35,0.5);border-radius:4px;padding:13px 16px;color:var(--gold);font-size:10px;letter-spacing:0.35em;cursor:pointer;font-family:'Orbitron',monospace;font-weight:700;}
+.skip-btn{background:none;border:none;color:rgba(245,230,200,0.2);font-size:8px;letter-spacing:0.2em;cursor:pointer;text-align:center;padding:4px;}
 
-    input, button { font-family: inherit; }
-    input::placeholder { color: rgba(255,255,255,0.25); }
+/* ── PIN ── */
+#screen-pin{align-items:center;justify-content:center;gap:28px;background:radial-gradient(ellipse at 50% 40%,#2a1a08 0%,#0d0a08 70%);}
+.pin-form{display:flex;flex-direction:column;gap:12px;width:280px;align-items:center;}
+.pin-form .pin-title{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:0.15em;color:var(--gold);}
+.pin-form .pin-sub{font-size:8px;letter-spacing:0.2em;color:var(--dim);}
+.pin-dots{display:flex;gap:12px;margin:8px 0;}
+.pin-dot{width:12px;height:12px;border-radius:50%;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.3);transition:all 0.2s;}
+.pin-dot.filled{background:var(--gold);box-shadow:0 0 8px var(--gold);}
+.pin-numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:200px;}
+.pin-key{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:6px;padding:14px;color:var(--cream);font-size:14px;cursor:pointer;text-align:center;transition:all 0.15s;font-family:'Orbitron',monospace;font-weight:700;}
+.pin-key:hover{background:rgba(245,166,35,0.14);border-color:rgba(245,166,35,0.4);}
+.pin-key.wide{grid-column:span 2;}
+.pin-error{font-size:8px;color:#ff6644;letter-spacing:0.2em;min-height:16px;}
 
-    ::-webkit-scrollbar { width: 3px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 2px; }
+/* ── LOBBY WAIT ── */
+#screen-lobby{align-items:center;justify-content:center;gap:28px;background:radial-gradient(ellipse at 50% 40%,#2a1a08 0%,#0d0a08 70%);}
+.lobby-spinner{width:60px;height:60px;border-radius:50%;border:2px solid rgba(245,166,35,0.1);border-top-color:var(--gold);animation:spin 1.2s linear infinite;}
+.lobby-title{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:0.15em;color:var(--gold);}
+.lobby-sub{font-size:8px;letter-spacing:0.2em;color:var(--dim);}
+.lobby-name-badge{font-size:10px;letter-spacing:0.25em;color:var(--gold);}
 
-    /* Scanlines */
-    body::after {
-      content: '';
-      position: fixed; inset: 0; pointer-events: none; z-index: 9999;
-      background: repeating-linear-gradient(
-        0deg, transparent, transparent 2px,
-        rgba(0,212,255,0.012) 2px, rgba(0,212,255,0.012) 4px
-      );
-    }
+/* ── HUB ── */
+#screen-hub{background:var(--bg);}
+.hub-nav{padding:16px 28px;border-bottom:1px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg,var(--bg2),transparent);}
+.nav-brand{display:flex;align-items:center;gap:14px;}
+.nav-logo{width:36px;height:36px;border-radius:50%;border:1px solid rgba(245,166,35,0.35);overflow:hidden;box-shadow:0 0 12px rgba(245,166,35,0.2);}
+.nav-logo img{width:100%;height:100%;object-fit:cover;}
+.nav-text .top{font-size:7px;letter-spacing:0.5em;color:rgba(245,166,35,0.55);}
+.nav-text .bot{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;letter-spacing:0.15em;color:var(--cream);}
+.nav-user{font-size:8px;letter-spacing:0.25em;color:rgba(245,166,35,0.5);}
+.hub-content{flex:1;overflow-y:auto;padding:44px 28px;display:flex;flex-direction:column;align-items:center;gap:36px;}
+.hub-heading .hint{font-size:8px;letter-spacing:0.55em;color:rgba(245,166,35,0.3);margin-bottom:10px;}
+.hub-heading .title{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;letter-spacing:0.15em;color:var(--cream);}
+.rooms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;max-width:660px;width:100%;}
+.room-card{border-radius:8px;padding:24px 20px;cursor:pointer;transition:transform 0.25s,box-shadow 0.25s,border-color 0.25s;position:relative;overflow:hidden;}
+.room-card:hover{transform:translateY(-3px);}
+.rc-icon{font-size:28px;margin-bottom:12px;}
+.rc-name{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:0.2em;margin-bottom:6px;}
+.rc-desc{font-size:8px;color:rgba(245,230,200,0.3);letter-spacing:0.12em;line-height:1.5;}
+.rc-cta{position:absolute;bottom:14px;right:16px;font-size:8px;letter-spacing:0.25em;opacity:0.5;}
+.rc-lock{position:absolute;top:14px;right:16px;font-size:11px;opacity:0.4;}
 
-    /* Particles */
-    .particle {
-      position: fixed; border-radius: 50%; background: var(--cyan);
-      pointer-events: none; z-index: 1; opacity: 0;
-      animation: floatUp var(--dur) var(--delay) ease-in-out infinite;
-    }
+/* ── ROOM ── */
+#screen-room{background:var(--bg);}
+.room-nav{padding:10px 18px;border-bottom:1px solid rgba(245,166,35,0.12);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  background:linear-gradient(180deg,var(--bg2),transparent);}
+.rnl{display:flex;align-items:center;gap:10px;}
+.rnr{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.btn{border-radius:4px;padding:6px 10px;cursor:pointer;font-size:7px;letter-spacing:0.15em;
+  transition:all 0.2s;font-family:'Share Tech Mono',monospace;border:1px solid rgba(245,230,200,0.1);}
+.btn-ghost{background:rgba(245,230,200,0.03);color:rgba(245,230,200,0.4);}
+.btn-ghost:hover{border-color:rgba(245,230,200,0.25);color:rgba(245,230,200,0.65);}
+.btn-ctrl{background:rgba(245,230,200,0.02);color:rgba(245,230,200,0.35);}
+.live-dot{font-size:7px;letter-spacing:0.22em;color:rgba(245,230,200,0.2);margin-right:4px;}
+.live-dot.on{color:#4ade80;}
+.room-body{flex:1;display:flex;overflow:hidden;}
 
-    @keyframes floatUp {
-      0%   { opacity: 0;   transform: translateY(0); }
-      15%  { opacity: 0.7; }
-      85%  { opacity: 0.3; }
-      100% { opacity: 0;   transform: translateY(-90px); }
-    }
+/* FLOOR */
+.floor{flex:1;position:relative;overflow:hidden;}
 
-    @keyframes glowPulse {
-      0%, 100% { box-shadow: 0 0 24px rgba(0,212,255,0.2); }
-      50%       { box-shadow: 0 0 50px rgba(0,212,255,0.5), 0 0 90px rgba(0,212,255,0.15); }
-    }
+/* SEAT CIRCLES — float above furniture */
+.seat{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:20;
+  display:flex;flex-direction:column;align-items:center;user-select:none;}
+.seat-ring{border-radius:50%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;transition:all 0.3s ease;position:relative;}
+.seat-ring.empty{width:50px;height:50px;background:rgba(245,166,35,0.04);
+  border:1.5px dashed rgba(245,166,35,0.22);animation:seatPulse 3.5s ease-in-out infinite;}
+.seat-ring.empty::after{content:'';position:absolute;inset:0;border-radius:50%;
+  animation:ping 2.8s ease-out infinite;border:1px solid rgba(245,166,35,0.14);}
+.seat-ring.taken{width:62px;height:62px;}
+.seat-ring.you{width:70px;height:70px;border:2px solid var(--gold) !important;
+  box-shadow:0 0 24px rgba(245,166,35,0.4),0 0 48px rgba(245,166,35,0.14) !important;animation:none !important;}
+.seat-emoji{font-size:18px;}
+.seat-ring.empty .seat-emoji{font-size:13px;filter:grayscale(1) opacity(0.2);}
+.seat-uname{font-size:7px;letter-spacing:0.08em;text-transform:uppercase;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.seat-sub{margin-top:4px;font-size:7px;letter-spacing:0.18em;white-space:nowrap;}
+.seat-badges{position:absolute;bottom:-4px;display:flex;gap:2px;}
+.seat-badge{font-size:8px;background:rgba(13,10,8,0.85);border-radius:3px;padding:0 2px;}
+.hand-indicator{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:13px;animation:handBounce 0.6s ease-in-out infinite;}
+.floor-stat{position:absolute;bottom:16px;left:16px;font-size:7px;letter-spacing:0.22em;color:rgba(245,166,35,0.3);}
+.floor-tip{position:absolute;bottom:16px;right:16px;font-size:7px;letter-spacing:0.2em;color:rgba(245,230,200,0.12);}
+.lobby-alert{position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  background:rgba(224,92,42,0.1);border:1px solid rgba(224,92,42,0.4);border-radius:4px;
+  padding:6px 14px;font-size:8px;letter-spacing:0.2em;color:#e05c2a;cursor:pointer;
+  animation:fadeUp 0.3s ease;white-space:nowrap;z-index:30;}
 
-    @keyframes seatPulse {
-      0%, 100% { opacity: 0.45; transform: translate(-50%,-50%) scale(1); }
-      50%       { opacity: 0.85; transform: translate(-50%,-50%) scale(1.06); }
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ── SCREEN MANAGEMENT ── */
-    .screen { display: none; height: 100vh; flex-direction: column; animation: fadeIn 0.35s ease; }
-    .screen.active { display: flex; }
-
-    /* ── NAME ENTRY ── */
-    #screen-name {
-      align-items: center; justify-content: center; gap: 36px;
-      background: radial-gradient(ellipse at center, #0a1628 0%, var(--bg) 70%);
-    }
-
-    .logo-ring {
-      width: 130px; height: 130px; border-radius: 50%;
-      background: radial-gradient(circle, #001833, var(--bg));
-      border: 2px solid rgba(0,212,255,0.25);
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden; animation: glowPulse 3s ease-in-out infinite;
-    }
-    .logo-ring img { width: 92%; height: 92%; object-fit: contain; border-radius: 50%; }
-
-    .brand-label { text-align: center; }
-    .brand-label .sub  { font-size: 9px; letter-spacing: 0.5em; color: rgba(0,212,255,0.6); margin-bottom: 6px; }
-    .brand-label .main { font-size: 22px; font-weight: 700; letter-spacing: 0.18em; }
-    .brand-label .tag  { font-size: 9px; color: rgba(255,255,255,0.25); letter-spacing: 0.2em; margin-top: 5px; }
-
-    .name-form { display: flex; flex-direction: column; gap: 10px; width: 300px; }
-    .name-form input {
-      background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2);
-      border-radius: 4px; padding: 13px 16px; color: var(--text);
-      font-size: 11px; letter-spacing: 0.25em; outline: none; text-align: center;
-      transition: border-color 0.2s;
-    }
-    .name-form input:focus { border-color: rgba(0,212,255,0.5); }
-    .name-form button {
-      background: linear-gradient(135deg, rgba(0,212,255,0.12), #003d60);
-      border: 1px solid rgba(0,212,255,0.4); border-radius: 4px;
-      padding: 13px 16px; color: var(--cyan);
-      font-size: 10px; letter-spacing: 0.35em; cursor: pointer; transition: all 0.2s;
-    }
-    .name-form button:hover { background: linear-gradient(135deg, rgba(0,212,255,0.2), #005080); }
-
-    /* ── HUB ── */
-    #screen-hub { background: var(--bg); }
-
-    .hub-header {
-      padding: 18px 28px; border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      background: linear-gradient(180deg, var(--bg2), transparent);
-      flex-shrink: 0;
-    }
-    .hub-header .brand { display: flex; align-items: center; gap: 14px; }
-    .hub-header .brand .logo-sm {
-      width: 38px; height: 38px; border-radius: 50%;
-      border: 1px solid rgba(0,212,255,0.3); overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,212,255,0.2);
-    }
-    .hub-header .brand .logo-sm img { width: 100%; height: 100%; object-fit: cover; }
-    .hub-header .brand .name .top { font-size: 8px; letter-spacing: 0.45em; color: rgba(0,212,255,0.55); }
-    .hub-header .brand .name .bot { font-size: 13px; letter-spacing: 0.18em; }
-    .user-badge { font-size: 9px; color: rgba(0,212,255,0.5); letter-spacing: 0.2em; }
-
-    .hub-body { flex: 1; padding: 44px 28px; display: flex; flex-direction: column; gap: 32px; align-items: center; overflow-y: auto; }
-    .hub-title { text-align: center; }
-    .hub-title .hint { font-size: 9px; letter-spacing: 0.5em; color: rgba(0,212,255,0.35); margin-bottom: 10px; }
-    .hub-title .heading { font-size: 20px; letter-spacing: 0.12em; }
-
-    .rooms-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
-      max-width: 680px; width: 100%;
-    }
-    .room-card {
-      border-radius: 8px; padding: 26px 22px; cursor: pointer;
-      transition: all 0.25s ease; position: relative; overflow: hidden;
-    }
-    .room-card .room-icon { font-size: 26px; margin-bottom: 10px; }
-    .room-card .room-name { font-size: 11px; letter-spacing: 0.22em; margin-bottom: 5px; }
-    .room-card .room-desc { font-size: 9px; color: rgba(255,255,255,0.35); letter-spacing: 0.1em; }
-    .room-card .room-enter {
-      position: absolute; bottom: 12px; right: 14px;
-      font-size: 8px; letter-spacing: 0.2em; opacity: 0.5;
-    }
-    .room-card:hover { transform: translateY(-2px); }
-
-    /* ── ROOM ── */
-    #screen-room { background: var(--bg); }
-
-    .room-header {
-      padding: 12px 22px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(0,212,255,0.12);
-    }
-    .room-header .left { display: flex; align-items: center; gap: 12px; }
-    .room-header .right { display: flex; gap: 8px; align-items: center; }
-
-    .btn-back, .btn-ctrl {
-      border-radius: 4px; padding: 7px 12px; cursor: pointer;
-      font-size: 9px; letter-spacing: 0.15em; transition: all 0.2s;
-      font-family: 'Courier New', monospace;
-    }
-    .btn-back {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.45);
-    }
-    .btn-back:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.7); }
-    .btn-ctrl { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4); }
-    .btn-ctrl.active { }
-
-    .live-indicator { font-size: 8px; letter-spacing: 0.2em; margin-right: 4px; color: rgba(255,255,255,0.25); }
-    .live-indicator.live { color: #10b981; }
-
-    .room-body { flex: 1; display: flex; overflow: hidden; }
-
-    /* Meeting floor */
-    .meeting-floor {
-      flex: 1; position: relative; overflow: hidden;
-    }
-    .floor-bg {
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 50% 50%, rgba(0,212,255,0.06) 0%, var(--bg) 65%);
-    }
-    .floor-grid {
-      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.05;
-    }
-
-    /* Center table */
-    .center-table {
-      position: absolute; left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
-      width: 140px; height: 90px; border-radius: 45px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    }
-    .center-table .tlogo {
-      width: 34px; height: 34px; border-radius: 50%; overflow: hidden; opacity: 0.6;
-    }
-    .center-table .tlogo img { width: 100%; height: 100%; object-fit: cover; }
-    .center-table .tlabel { font-size: 7px; letter-spacing: 0.18em; opacity: 0.5; }
-
-    /* Seats */
-    .seat {
-      position: absolute; transform: translate(-50%, -50%);
-      cursor: pointer; z-index: 10;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .seat-circle {
-      border-radius: 50%; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 2px;
-      transition: all 0.25s ease;
-    }
-    .seat-circle.empty {
-      width: 54px; height: 54px;
-      background: rgba(0,212,255,0.03);
-      border: 1.5px dashed rgba(0,212,255,0.2);
-      animation: seatPulse 3s ease-in-out infinite;
-    }
-    .seat-circle.occupied {
-      width: 66px; height: 66px;
-    }
-    .seat-circle.is-you {
-      width: 72px; height: 72px;
-      border: 2px solid #00d4ff !important;
-      box-shadow: 0 0 24px rgba(0,212,255,0.4), 0 0 48px rgba(0,212,255,0.15);
-    }
-    .seat-emoji { font-size: 20px; }
-    .seat-circle.empty .seat-emoji { font-size: 15px; filter: grayscale(1) opacity(0.25); }
-    .seat-name {
-      font-size: 7px; letter-spacing: 0.08em; text-transform: uppercase;
-      max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .seat-label {
-      margin-top: 4px; font-size: 7px; letter-spacing: 0.15em;
-      color: rgba(0,212,255,0.25); white-space: nowrap;
-    }
-    .seat-you-label {
-      margin-top: 4px; font-size: 8px; letter-spacing: 0.15em;
-      color: #00d4ff; text-shadow: 0 0 8px #00d4ff; white-space: nowrap;
-    }
-
-    .floor-count {
-      position: absolute; bottom: 20px; left: 20px;
-      font-size: 8px; letter-spacing: 0.2em; color: rgba(0,212,255,0.35);
-    }
-    .floor-hint {
-      position: absolute; bottom: 20px; right: 20px;
-      font-size: 8px; letter-spacing: 0.2em; color: rgba(255,255,255,0.15);
-    }
-
-    /* Chat panel */
-    .chat-panel {
-      width: 270px; display: flex; flex-direction: column;
-      background: rgba(4,8,16,0.96); animation: fadeIn 0.2s ease;
-    }
-    .chat-header {
-      padding: 12px 16px; font-size: 8px; letter-spacing: 0.35em;
-      flex-shrink: 0;
-    }
-    .chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
-    .chat-msg-from { font-size: 7px; letter-spacing: 0.2em; margin-bottom: 3px; }
-    .chat-msg-text { font-size: 10px; line-height: 1.5; }
-    .chat-input-row { padding: 10px; display: flex; gap: 6px; flex-shrink: 0; }
-    .chat-input-row input {
-      flex: 1; border-radius: 3px; padding: 8px 10px; color: var(--text);
-      font-size: 9px; letter-spacing: 0.1em; outline: none;
-      font-family: 'Courier New', monospace;
-    }
-    .chat-send { border-radius: 3px; padding: 8px 10px; cursor: pointer; font-size: 10px; }
-  </style>
+/* SIDE PANELS */
+.side-panel{width:0;overflow:hidden;transition:width 0.3s ease;
+  background:rgba(13,10,8,0.97);flex-shrink:0;display:flex;flex-direction:column;}
+.side-panel.open{width:272px;}
+.panel-header{padding:11px 14px;font-size:8px;letter-spacing:0.38em;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(245,166,35,0.1);}
+.panel-close{background:none;border:none;color:rgba(245,230,200,0.3);cursor:pointer;font-size:12px;padding:0;}
+#videoStrip{border-left:1px solid rgba(245,166,35,0.12);}
+#dailyContainer{flex:1;position:relative;overflow:hidden;}
+#dailyContainer iframe{width:100%;height:100%;border:none;}
+.video-footer{padding:7px 12px;font-size:7px;letter-spacing:0.15em;color:rgba(245,230,200,0.2);border-top:1px solid rgba(245,166,35,0.08);flex-shrink:0;}
+#chatPane{border-left:1px solid rgba(245,166,35,0.12);}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0;}
+.msg-from{font-size:7px;letter-spacing:0.2em;margin-bottom:3px;}
+.msg-text{font-size:9px;line-height:1.55;word-break:break-word;}
+.chat-bar{padding:8px;display:flex;gap:5px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08);}
+.chat-bar input{flex:1;border-radius:3px;padding:7px 9px;color:var(--cream);font-size:8px;letter-spacing:0.1em;outline:none;font-family:'Share Tech Mono',monospace;}
+.chat-bar button{border-radius:3px;padding:7px 10px;cursor:pointer;font-size:10px;}
+#contentPane{border-left:1px solid rgba(245,166,35,0.12);}
+.content-list{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;}
+.content-item{background:rgba(245,166,35,0.04);border-radius:4px;padding:9px 11px;border:1px solid rgba(245,166,35,0.1);cursor:pointer;transition:all 0.2s;}
+.content-item:hover{border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.08);}
+.ci-title{font-size:9px;letter-spacing:0.12em;color:var(--cream);margin-bottom:2px;}
+.ci-url{font-size:7px;color:rgba(245,230,200,0.25);letter-spacing:0.08em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ci-type{font-size:7px;letter-spacing:0.1em;margin-bottom:3px;}
+.content-add{padding:9px 11px;border-top:1px solid rgba(245,166,35,0.08);flex-shrink:0;}
+.content-add input{width:100%;background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);border-radius:3px;padding:6px 9px;color:var(--cream);font-size:8px;letter-spacing:0.1em;outline:none;margin-bottom:4px;font-family:'Share Tech Mono',monospace;}
+#notesPane{border-left:1px solid rgba(245,166,35,0.12);}
+.notes-area{flex:1;padding:11px 13px;display:flex;flex-direction:column;}
+.notes-area textarea{flex:1;background:rgba(245,166,35,0.03);border:1px solid rgba(245,166,35,0.12);border-radius:4px;padding:9px 11px;color:var(--cream);font-size:8px;line-height:1.7;outline:none;resize:none;letter-spacing:0.05em;font-family:'Share Tech Mono',monospace;}
+.notes-footer{padding:7px 13px;display:flex;gap:5px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08);}
+.notes-footer button{flex:1;border-radius:3px;padding:7px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;}
+#lobbyPane{border-left:1px solid rgba(224,92,42,0.2);}
+.lobby-list{flex:1;overflow-y:auto;padding:9px 11px;display:flex;flex-direction:column;gap:7px;}
+.lobby-guest{background:rgba(224,92,42,0.06);border:1px solid rgba(224,92,42,0.2);border-radius:4px;padding:9px 11px;display:flex;align-items:center;justify-content:space-between;}
+.lg-name{font-size:9px;letter-spacing:0.12em;color:var(--cream);}
+.lg-time{font-size:7px;color:rgba(245,230,200,0.3);letter-spacing:0.1em;margin-top:2px;}
+.lg-actions{display:flex;gap:5px;}
+.lg-admit{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);border-radius:3px;padding:4px 9px;color:#4ade80;font-size:7px;cursor:pointer;letter-spacing:0.1em;font-family:'Share Tech Mono',monospace;}
+.lg-deny{background:rgba(255,80,60,0.08);border:1px solid rgba(255,80,60,0.25);border-radius:3px;padding:4px 9px;color:rgba(255,100,80,0.7);font-size:7px;cursor:pointer;letter-spacing:0.1em;font-family:'Share Tech Mono',monospace;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:rgba(26,18,8,0.97);border:1px solid rgba(245,166,35,0.3);
+  border-radius:4px;padding:9px 18px;font-size:8px;letter-spacing:0.2em;
+  color:var(--gold);z-index:10000;animation:fadeUp 0.3s ease;pointer-events:none;}
+.toast.green{border-color:rgba(74,222,128,0.35);color:#4ade80;}
+</style>
 </head>
 <body>
+<div id="particles" style="position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;"></div>
 
-<!-- Particles injected by JS -->
-<div id="particles"></div>
-
-<!-- ── SCREEN: NAME ENTRY ── -->
+<!-- NAME -->
 <div id="screen-name" class="screen active">
-  <div class="logo-ring">
-    <img src="/logo.png" alt="28FM" onerror="this.style.display='none'" />
+  <div class="logo-glow"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
+  <div class="brand-block">
+    <div class="eyebrow">28 FOOT MARKETING</div>
+    <div class="wordmark">VIRTUAL HUB</div>
+    <div class="tagline">DIGITAL MARKETING INNOVATION &amp; STRATEGY</div>
   </div>
-  <div class="brand-label">
-    <div class="sub">28 FOOT MARKETING</div>
-    <div class="main">VIRTUAL HUB</div>
-    <div class="tag">DIGITAL MARKETING INNOVATION & STRATEGY</div>
-  </div>
-  <div class="name-form">
-    <input id="name-input" type="text" placeholder="ENTER YOUR NAME" maxlength="30" autocomplete="off" />
-    <button id="name-enter">▸ ENTER HUB</button>
+  <div class="entry-form">
+    <input id="nameInput" type="text" placeholder="ENTER YOUR NAME" maxlength="28" autocomplete="off"/>
+    <button id="nameBtn">&#9658; ENTER HUB</button>
   </div>
 </div>
 
-<!-- ── SCREEN: HUB ── -->
+<!-- LEAD -->
+<div id="screen-lead" class="screen">
+  <div class="logo-glow" style="width:80px;height:80px;"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
+  <div class="lead-form">
+    <div class="lead-title">BEFORE YOU ENTER</div>
+    <div class="lead-sub">LET US KNOW WHO YOU ARE</div>
+    <input id="leadName" type="text" placeholder="FULL NAME *" maxlength="50"/>
+    <input id="leadEmail" type="email" placeholder="EMAIL ADDRESS"/>
+    <input id="leadPhone" type="tel" placeholder="PHONE NUMBER"/>
+    <button id="leadSubmit">&#9658; ENTER ROOM</button>
+    <button class="skip-btn" id="leadSkip">SKIP FOR NOW</button>
+  </div>
+</div>
+
+<!-- PIN -->
+<div id="screen-pin" class="screen">
+  <div class="logo-glow" style="width:80px;height:80px;"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
+  <div class="pin-form">
+    <div class="pin-title">ROOM ACCESS</div>
+    <div class="pin-sub" id="pinRoomName">ENTER PIN TO CONTINUE</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-numpad" id="pinNumpad"></div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- LOBBY WAIT -->
+<div id="screen-lobby" class="screen">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+    <div class="logo-glow" style="width:80px;height:80px;"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
+    <div class="lobby-spinner"></div>
+    <div class="lobby-title">WAITING FOR HOST</div>
+    <div class="lobby-sub">THE HOST WILL ADMIT YOU SHORTLY</div>
+    <div class="lobby-name-badge" id="lobbyNameBadge"></div>
+    <button class="btn btn-ghost" id="lobbyCancel" style="margin-top:6px;">CANCEL</button>
+  </div>
+</div>
+
+<!-- HUB -->
 <div id="screen-hub" class="screen">
-  <div class="hub-header">
-    <div class="brand">
-      <div class="logo-sm"><img src="/logo.png" alt="28FM" onerror="this.style.display='none'" /></div>
-      <div class="name">
-        <div class="top">28 FOOT MARKETING</div>
-        <div class="bot">VIRTUAL HUB</div>
-      </div>
+  <nav class="hub-nav">
+    <div class="nav-brand">
+      <div class="nav-logo"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
+      <div class="nav-text"><div class="top">28 FOOT MARKETING</div><div class="bot">VIRTUAL HUB</div></div>
     </div>
-    <div class="user-badge" id="hub-user-badge">● </div>
-  </div>
-  <div class="hub-body">
-    <div class="hub-title">
-      <div class="hint">SELECT A ROOM TO ENTER</div>
-      <div class="heading">MEETING SPACES</div>
-    </div>
-    <div class="rooms-grid" id="rooms-grid"></div>
+    <div class="nav-user" id="navUser">&#9679;</div>
+  </nav>
+  <div class="hub-content">
+    <div class="hub-heading"><div class="hint">SELECT A ROOM TO ENTER</div><div class="title">MEETING SPACES</div></div>
+    <div class="rooms-grid" id="roomsGrid"></div>
   </div>
 </div>
 
-<!-- ── SCREEN: ROOM ── -->
+<!-- ROOM -->
 <div id="screen-room" class="screen">
-  <div class="room-header">
-    <div class="left">
-      <button class="btn-back" id="btn-leave">← HUB</button>
-      <span id="room-icon-hdr" style="font-size:16px"></span>
+  <nav class="room-nav">
+    <div class="rnl">
+      <button class="btn btn-ghost" id="btnLeave">&#8592; HUB</button>
+      <span id="rIcon" style="font-size:15px;"></span>
       <div>
-        <div id="room-name-hdr" style="font-size:10px;letter-spacing:0.25em"></div>
-        <div id="room-desc-hdr" style="font-size:8px;color:rgba(255,255,255,0.3);letter-spacing:0.1em"></div>
+        <div id="rName" style="font-size:10px;letter-spacing:0.25em;font-family:'Orbitron',monospace;font-weight:700;"></div>
+        <div id="rDesc" style="font-size:7px;color:rgba(245,230,200,0.28);letter-spacing:0.1em;margin-top:1px;"></div>
       </div>
     </div>
-    <div class="right">
-      <div class="live-indicator" id="live-indicator">○ CHOOSE SEAT</div>
-      <button class="btn-ctrl" id="btn-mic">🎤 MIC OFF</button>
-      <button class="btn-ctrl" id="btn-cam">📷 CAM OFF</button>
-      <button class="btn-ctrl" id="btn-chat">💬 CHAT</button>
+    <div class="rnr">
+      <div class="live-dot" id="liveDot">&#9675; CHOOSE SEAT</div>
+      <button class="btn btn-ctrl" id="btnMic">&#127908; MIC</button>
+      <button class="btn btn-ctrl" id="btnCam">&#128247; CAM</button>
+      <button class="btn btn-ctrl" id="btnHand">&#9995; HAND</button>
+      <button class="btn btn-ctrl" id="btnContent">&#128203; CONTENT</button>
+      <button class="btn btn-ctrl" id="btnNotes">&#128221; NOTES</button>
+      <button class="btn btn-ctrl" id="btnChat">&#128172; CHAT</button>
+      <button class="btn btn-ctrl" id="btnShare">&#128279; INVITE</button>
+      <button class="btn btn-ctrl" id="btnLobby" style="display:none;">&#128100; LOBBY <span id="lobbyCount"></span></button>
     </div>
-  </div>
+  </nav>
   <div class="room-body">
-    <div class="meeting-floor" id="meeting-floor">
-      <div class="floor-bg" id="floor-bg"></div>
-      <svg class="floor-grid" id="floor-grid"></svg>
-      <div class="center-table" id="center-table">
-        <div class="tlogo"><img src="/logo.png" alt="" onerror="this.style.display='none'" /></div>
-        <div class="tlabel">28FM HUB</div>
-      </div>
-      <div class="floor-count" id="floor-count">0 / 6 SEATS OCCUPIED</div>
-      <div class="floor-hint" id="floor-hint">▸ CLICK A SEAT TO JOIN</div>
+    <div class="floor" id="floor">
+      <!-- SVG room drawn by JS per room -->
+      <svg id="roomSVG" style="position:absolute;inset:0;width:100%;height:100%;"></svg>
+      <div class="floor-stat" id="floorStat">0 / 6 SEATS OCCUPIED</div>
+      <div class="floor-tip" id="floorTip">&#9658; CLICK A SEAT TO JOIN</div>
     </div>
-    <div class="chat-panel" id="chat-panel" style="display:none; border-left:1px solid rgba(0,212,255,0.15)">
-      <div class="chat-header" id="chat-header">ROOM CHAT</div>
-      <div class="chat-messages" id="chat-messages"></div>
-      <div class="chat-input-row" id="chat-input-row">
-        <input id="chat-input" type="text" placeholder="TYPE MESSAGE..." maxlength="200" autocomplete="off" />
-        <button class="chat-send" id="chat-send">▸</button>
+    <!-- VIDEO -->
+    <div class="side-panel" id="videoStrip">
+      <div class="panel-header"><span id="videoHeader">&#128247; LIVE VIDEO</span><button class="panel-close" id="closeVideo">&#10005;</button></div>
+      <div id="dailyContainer"></div>
+      <div class="video-footer">Daily.co</div>
+    </div>
+    <!-- CONTENT -->
+    <div class="side-panel" id="contentPane">
+      <div class="panel-header"><span id="contentHeader">&#128203; ROOM CONTENT</span><button class="panel-close" id="closeContent">&#10005;</button></div>
+      <div class="content-list" id="contentList"></div>
+      <div class="content-add">
+        <input id="contentTitle" placeholder="TITLE"/>
+        <input id="contentUrl" placeholder="URL OR NOTE"/>
+        <button id="contentAddBtn" style="width:100%;border-radius:3px;padding:6px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;">+ ADD ITEM</button>
       </div>
+    </div>
+    <!-- NOTES -->
+    <div class="side-panel" id="notesPane">
+      <div class="panel-header"><span id="notesHeader">&#128221; SESSION NOTES</span><button class="panel-close" id="closeNotes">&#10005;</button></div>
+      <div class="notes-area"><textarea id="notesTextarea" placeholder="TYPE SESSION NOTES HERE...&#10;&#10;Auto-saves every 10 seconds."></textarea></div>
+      <div class="notes-footer">
+        <button id="notesSave">&#128190; SAVE</button>
+        <button id="notesCopy">&#128203; COPY</button>
+      </div>
+    </div>
+    <!-- CHAT -->
+    <div class="side-panel" id="chatPane">
+      <div class="panel-header"><span id="chatHeader">&#128172; ROOM CHAT</span><button class="panel-close" id="closeChat">&#10005;</button></div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="chat-bar">
+        <input id="chatInput" type="text" placeholder="TYPE MESSAGE..." maxlength="200" autocomplete="off"/>
+        <button id="chatSend">&#9658;</button>
+      </div>
+    </div>
+    <!-- LOBBY -->
+    <div class="side-panel" id="lobbyPane">
+      <div class="panel-header" style="color:#e05c2a;">&#128100; WAITING ROOM<button class="panel-close" id="closeLobby">&#10005;</button></div>
+      <div class="lobby-list" id="lobbyList"></div>
     </div>
   </div>
 </div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-const SUPABASE_URL  = "%%SUPABASE_URL%%";
-const SUPABASE_KEY  = "%%SUPABASE_KEY%%";
-// ─────────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL="%%SUPABASE_URL%%";
+const SUPABASE_KEY="%%SUPABASE_KEY%%";
+const DAILY_DOMAIN="%%DAILY_DOMAIN%%";
+const GHL_WEBHOOK="%%GHL_WEBHOOK%%";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SID="s_"+Math.random().toString(36).slice(2)+"_"+Date.now();
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const SESSION_ID = `sess_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-
-const ROOMS = [
-  { id:"strategy",   name:"Strategy Room",    icon:"⚡", desc:"Client Strategy & Planning",     color:"#00d4ff" },
-  { id:"recruiting", name:"RecruitAble Suite", icon:"🏆", desc:"Athlete Recruiting Sessions",    color:"#7c3aed" },
-  { id:"coaching",   name:"FTP Coaching Room", icon:"🎯", desc:"Coach Development & Mentorship", color:"#06b6d4" },
-  { id:"ops",        name:"Ops Command",       icon:"🤖", desc:"CORA / Agent Briefings",         color:"#10b981" },
+// ── ROOM DEFINITIONS ──────────────────────────────────────────────────────
+const ROOMS=[
+  {id:"strategy",   name:"Strategy Room",    icon:"⚡",desc:"Client Strategy & Planning",     color:"#f5a623",requireLead:false,requireLobby:false},
+  {id:"recruiting", name:"RecruitAble Suite", icon:"🏆",desc:"Athlete Recruiting Sessions",    color:"#e05c2a",requireLead:true, requireLobby:true},
+  {id:"coaching",   name:"FTP Coaching Room", icon:"🎯",desc:"Coach Development & Mentorship", color:"#c084fc",requireLead:false,requireLobby:false},
+  {id:"ops",        name:"Ops Command",       icon:"🤖",desc:"CORA / Agent Briefings",         color:"#34d399",requireLead:false,requireLobby:false},
 ];
 
-const SEATS = [
-  { id:1, x:50, y:18 }, { id:2, x:22, y:40 }, { id:3, x:78, y:40 },
-  { id:4, x:22, y:65 }, { id:5, x:78, y:65 }, { id:6, x:50, y:85 },
-];
+// ── SEAT POSITIONS per room (% of floor) ─────────────────────────────────
+const ROOM_SEATS={
+  strategy:[
+    {id:1,x:50,y:22,label:"HOST"},
+    {id:2,x:22,y:42,label:"SEAT 2"},{id:3,x:78,y:42,label:"SEAT 3"},
+    {id:4,x:22,y:68,label:"SEAT 4"},{id:5,x:78,y:68,label:"SEAT 5"},
+    {id:6,x:50,y:84,label:"SEAT 6"},
+  ],
+  recruiting:[
+    {id:1,x:50,y:28,label:"ADVISOR"},
+    {id:2,x:28,y:52,label:"RECRUIT"},{id:3,x:72,y:52,label:"PARENT"},
+    {id:4,x:35,y:76,label:"SEAT 4"},{id:5,x:65,y:76,label:"SEAT 5"},
+    {id:6,x:50,y:88,label:"SEAT 6"},
+  ],
+  coaching:[
+    {id:1,x:50,y:18,label:"COACH"},
+    {id:2,x:20,y:44,label:"PLAYER 1"},{id:3,x:80,y:44,label:"PLAYER 2"},
+    {id:4,x:20,y:70,label:"PLAYER 3"},{id:5,x:80,y:70,label:"PLAYER 4"},
+    {id:6,x:50,y:86,label:"PLAYER 5"},
+  ],
+  ops:[
+    {id:1,x:50,y:20,label:"LEAD"},
+    {id:2,x:20,y:42,label:"DEV"},{id:3,x:80,y:42,label:"OPS"},
+    {id:4,x:20,y:68,label:"AGENT"},{id:5,x:80,y:68,label:"AGENT"},
+    {id:6,x:50,y:84,label:"CORA"},
+  ],
+};
 
-const AVATARS = ["🧑‍💼","👩‍💼","🧑‍🏫","👨‍🎓","🧑‍🚀","👤"];
-const myAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
+const EMOJIS=["🧑‍💼","👩‍💼","🧑‍🏫","👨‍🎓","🧑‍🚀","👤"];
+const myEmoji=EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+let myName="",room=null,mySeat=null,micOn=false,camOn=false,handRaised=false,isHost=false;
+let occupants={},reactions={},lobbyGuests={};
+let presenceSub=null,chatSub=null,reactionSub=null,lobbySub=null,contentSub=null;
+let pingTimer=null,notesTimer=null,callFrame=null;
+let pendingRoom=null,pinBuffer="",leadCaptured=false;
+const PANELS=["videoStrip","contentPane","notesPane","chatPane","lobbyPane"];
+const openPanels=new Set();
 
-let myName = "";
-let activeRoom = null;
-let mySeatId = null;
-let micOn = false, camOn = false;
-let chatOpen = false;
-let occupants = {}; // seatId → row
-let sub = null;
-let pingInterval = null;
+// ── SVG ROOM DRAWINGS ─────────────────────────────────────────────────────
+function drawRoom(roomId,color){
+  const svg=document.getElementById("roomSVG");
+  const W=svg.clientWidth||800, H=svg.clientHeight||500;
+  const c=color;
+  const dim=(hex,a)=>{
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  };
+  let s="";
 
-// ─── PARTICLES ───────────────────────────────────────────────────────────────
-(function spawnParticles() {
-  const container = document.getElementById("particles");
-  for (let i = 0; i < 20; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    p.style.cssText = `
-      left:${(i*7+13)%100}%;top:${(i*11+7)%100}%;
-      width:${i%3===0?2:1}px;height:${i%3===0?2:1}px;
-      --dur:${4+i%5}s;--delay:${(i*0.4).toFixed(1)}s;
-    `;
-    container.appendChild(p);
+  // ── FLOOR BASE
+  s+=`<defs>
+    <pattern id="floorPattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="40" height="40" fill="${dim('#1a1208',1)}"/>
+      <rect width="20" height="20" fill="${dim('#221808',1)}"/>
+      <rect x="20" y="20" width="20" height="20" fill="${dim('#221808',1)}"/>
+    </pattern>
+    <radialGradient id="roomGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${c}" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#0d0a08" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // Room floor
+  s+=`<rect width="${W}" height="${H}" fill="url(#floorPattern)"/>`;
+  s+=`<rect width="${W}" height="${H}" fill="url(#roomGlow)"/>`;
+
+  // Room walls / wainscoting
+  s+=`<rect x="0" y="0" width="${W}" height="8" fill="${dim(c,0.15)}"/>`;
+  s+=`<rect x="0" y="${H-8}" width="${W}" height="8" fill="${dim(c,0.08)}"/>`;
+  s+=`<rect x="0" y="0" width="8" height="${H}" fill="${dim(c,0.1)}"/>`;
+  s+=`<rect x="${W-8}" y="0" width="8" height="${H}" fill="${dim(c,0.1)}"/>`;
+  // Wainscoting rail
+  s+=`<rect x="8" y="${H*0.35}" width="${W-16}" height="3" fill="${dim(c,0.18)}" rx="1"/>`;
+  // Wall texture lines
+  for(let i=1;i<8;i++){
+    s+=`<line x1="${i*W/8}" y1="8" x2="${i*W/8}" y2="${H*0.35}" stroke="${dim(c,0.06)}" stroke-width="1"/>`;
+  }
+
+  if(roomId==="strategy"){
+    // ── EXECUTIVE BOARDROOM
+    // Large oval conference table
+    const tx=W/2, ty=H/2, tw=W*0.45, th=H*0.28;
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="${dim('#3d2200',0.9)}" stroke="${dim(c,0.5)}" stroke-width="2"/>`;
+    // Table surface sheen
+    s+=`<ellipse cx="${tx}" cy="${ty-th*0.15}" rx="${tw*0.7}" ry="${th*0.3}" fill="${dim('#ffffff',0.04)}"/>`;
+    // Table edge banding
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="none" stroke="${dim(c,0.3)}" stroke-width="4"/>`;
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw-6}" ry="${th-6}" fill="none" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+    // Logo on table
+    s+=`<text x="${tx}" y="${ty+6}" text-anchor="middle" font-size="11" fill="${dim(c,0.35)}" font-family="'Orbitron',monospace" letter-spacing="3">28FM</text>`;
+    // Leather chairs around table (decorative, behind seats)
+    const chairAngles=[0,60,120,180,240,300];
+    chairAngles.forEach(deg=>{
+      const rad=deg*Math.PI/180;
+      const cx=tx+Math.cos(rad)*(tw+28);
+      const cy=ty+Math.sin(rad)*(th+22);
+      s+=`<ellipse cx="${cx}" cy="${cy}" rx="18" ry="14" fill="${dim('#2a1500',0.95)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
+      s+=`<ellipse cx="${cx}" cy="${cy-3}" rx="12" ry="8" fill="${dim('#3d2200',0.8)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
+    });
+    // Credenza on back wall
+    s+=`<rect x="${W*0.1}" y="${H*0.08}" width="${W*0.8}" height="${H*0.1}" rx="4" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
+    s+=`<rect x="${W*0.12}" y="${H*0.09}" width="${W*0.36}" height="${H*0.07}" rx="2" fill="${dim('#1a0e00',0.8)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.52}" y="${H*0.09}" width="${W*0.36}" height="${H*0.07}" rx="2" fill="${dim('#1a0e00',0.8)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+    // Door handles on credenza
+    s+=`<circle cx="${W*0.3}" cy="${H*0.125}" r="3" fill="${dim(c,0.5)}"/>`;
+    s+=`<circle cx="${W*0.7}" cy="${H*0.125}" r="3" fill="${dim(c,0.5)}"/>`;
+    // Presentation screen on far wall
+    s+=`<rect x="${W*0.3}" y="${H*0.07}" width="${W*0.4}" height="6" rx="1" fill="${dim(c,0.3)}"/>`;
+    // Plants in corners
+    [[W*0.06,H*0.88],[W*0.94,H*0.88]].forEach(([px,py])=>{
+      s+=`<ellipse cx="${px}" cy="${py}" rx="14" ry="10" fill="${dim('#0a2a10',0.9)}" stroke="${dim('#34d399',0.3)}" stroke-width="1"/>`;
+      s+=`<rect x="${px-5}" y="${py}" width="10" height="14" rx="2" fill="${dim('#3d2200',0.8)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    });
+    // Overhead light fixtures
+    [W*0.35,W*0.5,W*0.65].forEach(lx=>{
+      s+=`<ellipse cx="${lx}" cy="${ty}" rx="5" ry="3" fill="${dim(c,0.6)}" filter="url(#softGlow)"/>`;
+      s+=`<line x1="${lx}" y1="0" x2="${lx}" y2="${ty-3}" stroke="${dim(c,0.15)}" stroke-width="1" stroke-dasharray="3,3"/>`;
+    });
+
+  } else if(roomId==="recruiting"){
+    // ── ATHLETIC MEETING ROOM
+    // Main desk - recruiter side
+    s+=`<rect x="${W*0.25}" y="${H*0.32}" width="${W*0.5}" height="${H*0.14}" rx="6" fill="${dim('#3d2200',0.92)}" stroke="${dim(c,0.45)}" stroke-width="2"/>`;
+    s+=`<rect x="${W*0.27}" y="${H*0.33}" width="${W*0.46}" height="${H*0.11}" rx="4" fill="${dim('#2a1500',0.8)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
+    // Laptop on desk
+    s+=`<rect x="${W*0.41}" y="${H*0.34}" width="${W*0.08}" height="${H*0.06}" rx="2" fill="${dim('#111',0.95)}" stroke="${dim(c,0.35)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.4}" y="${H*0.395}" width="${W*0.1}" height="${H*0.015}" rx="1" fill="${dim('#222',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    // Screen glow
+    s+=`<rect x="${W*0.415}" y="${H*0.345}" width="${W*0.07}" height="${H*0.048}" rx="1" fill="${dim(c,0.12)}"/>`;
+    // Files / folders on desk
+    s+=`<rect x="${W*0.53}" y="${H*0.34}" width="${W*0.06}" height="${H*0.055}" rx="1" fill="${dim('#8B4513',0.7)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.535}" y="${H*0.335}" width="${W*0.05}" height="${H*0.005}" rx="0.5" fill="${dim(c,0.4)}"/>`;
+    // Trophy shelf on wall
+    s+=`<rect x="${W*0.05}" y="${H*0.08}" width="${W*0.9}" height="${H*0.11}" rx="3" fill="${dim('#2a1500',0.85)}" stroke="${dim(c,0.2)}" stroke-width="1.5"/>`;
+    // Trophies
+    [[W*0.15,H*0.13],[W*0.3,H*0.12],[W*0.5,H*0.115],[W*0.7,H*0.12],[W*0.85,H*0.13]].forEach(([tx2,ty2])=>{
+      s+=`<polygon points="${tx2},${ty2-18} ${tx2-7},${ty2} ${tx2+7},${ty2}" fill="${dim(c,0.6)}" stroke="${dim(c,0.3)}" stroke-width="0.5"/>`;
+      s+=`<rect x="${tx2-4}" y="${ty2}" width="8" height="5" rx="1" fill="${dim(c,0.4)}"/>`;
+    });
+    // Game film board on far wall
+    s+=`<rect x="${W*0.2}" y="${H*0.06}" width="${W*0.6}" height="8" rx="2" fill="${dim(c,0.35)}"/>`;
+    s+=`<text x="${W*0.5}" y="${H*0.075}" text-anchor="middle" font-size="7" fill="${dim(c,0.8)}" font-family="'Share Tech Mono',monospace" letter-spacing="2">RECRUITABLE SUITE</text>`;
+    // Guest chairs (recruit side)
+    [[W*0.3,H*0.62],[W*0.5,H*0.65],[W*0.7,H*0.62]].forEach(([cx2,cy2])=>{
+      s+=`<rect x="${cx2-16}" y="${cy2-10}" width="32" height="26" rx="4" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
+      s+=`<rect x="${cx2-14}" y="${cy2-8}" width="28" height="16" rx="3" fill="${dim('#3d2200',0.7)}"/>`;
+      s+=`<rect x="${cx2-6}" y="${cy2-22}" width="12" height="14" rx="2" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    });
+    // Logo on wall
+    s+=`<circle cx="${W*0.88}" cy="${H*0.75}" r="28" fill="${dim(c,0.06)}" stroke="${dim(c,0.18)}" stroke-width="1"/>`;
+    s+=`<text x="${W*0.88}" y="${H*0.75+4}" text-anchor="middle" font-size="9" fill="${dim(c,0.4)}" font-family="'Orbitron',monospace">28FM</text>`;
+
+  } else if(roomId==="coaching"){
+    // ── COACHING CLINIC ROOM — whiteboard + training setup
+    // Large whiteboard
+    s+=`<rect x="${W*0.08}" y="${H*0.07}" width="${W*0.84}" height="${H*0.22}" rx="4" fill="${dim('#1a1208',0.95)}" stroke="${dim(c,0.4)}" stroke-width="2"/>`;
+    // Whiteboard frame
+    s+=`<rect x="${W*0.08}" y="${H*0.07}" width="${W*0.84}" height="${H*0.22}" rx="4" fill="none" stroke="${dim(c,0.6)}" stroke-width="2"/>`;
+    // Whiteboard content — play diagram
+    const bx=W*0.08,by=H*0.07,bw=W*0.84,bh=H*0.22;
+    // Field lines on whiteboard
+    s+=`<line x1="${bx+bw*0.25}" y1="${by+8}" x2="${bx+bw*0.25}" y2="${by+bh-8}" stroke="${dim(c,0.2)}" stroke-width="1" stroke-dasharray="4,3"/>`;
+    s+=`<line x1="${bx+bw*0.5}" y1="${by+8}" x2="${bx+bw*0.5}" y2="${by+bh-8}" stroke="${dim(c,0.2)}" stroke-width="1" stroke-dasharray="4,3"/>`;
+    s+=`<line x1="${bx+bw*0.75}" y1="${by+8}" x2="${bx+bw*0.75}" y2="${by+bh-8}" stroke="${dim(c,0.2)}" stroke-width="1" stroke-dasharray="4,3"/>`;
+    // X's and O's
+    const plays=[[bx+bw*0.2,by+bh*0.4,"O"],[bx+bw*0.4,by+bh*0.5,"X"],[bx+bw*0.6,by+bh*0.4,"O"],[bx+bw*0.8,by+bh*0.5,"X"]];
+    plays.forEach(([px2,py2,sym])=>{
+      s+=`<text x="${px2}" y="${py2}" text-anchor="middle" font-size="12" fill="${dim(c,0.55)}" font-family="'Share Tech Mono',monospace">${sym}</text>`;
+      // Arrows
+      s+=`<line x1="${px2}" y1="${py2-10}" x2="${px2+20}" y2="${py2-20}" stroke="${dim(c,0.3)}" stroke-width="1.5" marker-end="url(#arrow)"/>`;
+    });
+    // BOARD label
+    s+=`<text x="${bx+bw*0.5}" y="${by+bh-6}" text-anchor="middle" font-size="7" fill="${dim(c,0.3)}" font-family="'Share Tech Mono',monospace" letter-spacing="2">GAME PLAN</text>`;
+
+    // Whiteboard marker tray
+    s+=`<rect x="${W*0.08}" y="${H*0.29}" width="${W*0.84}" height="${H*0.025}" rx="2" fill="${dim('#3d2200',0.8)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    // Markers
+    ["#f5a623","#e05c2a","#c084fc","#34d399"].forEach((mc,mi)=>{
+      s+=`<rect x="${W*0.1+mi*W*0.05}" y="${H*0.292}" width="${W*0.035}" height="${H*0.018}" rx="2" fill="${dim(mc,0.8)}"/>`;
+    });
+
+    // Round seminar table
+    const rtx=W*0.5, rty=H*0.62, rtr=H*0.17;
+    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.5}" ry="${rtr}" fill="${dim('#3d2200',0.9)}" stroke="${dim(c,0.45)}" stroke-width="2"/>`;
+    s+=`<ellipse cx="${rtx}" cy="${rty-rtr*0.12}" rx="${rtr*1.1}" ry="${rtr*0.55}" fill="${dim('#ffffff',0.035)}"/>`;
+    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.5}" ry="${rtr}" fill="none" stroke="${dim(c,0.25)}" stroke-width="3"/>`;
+    // Notebooks on table
+    [[rtx-30,rty-8],[rtx,rty-12],[rtx+30,rty-8]].forEach(([nx,ny])=>{
+      s+=`<rect x="${nx-10}" y="${ny-7}" width="20" height="14" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1"/>`;
+      s+=`<line x1="${nx-7}" y1="${ny-4}" x2="${nx+7}" y2="${ny-4}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
+      s+=`<line x1="${nx-7}" y1="${ny}" x2="${nx+7}" y2="${ny}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
+      s+=`<line x1="${nx-7}" y1="${ny+4}" x2="${nx+7}" y2="${ny+4}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
+    });
+
+    // Corner storage cabinet
+    s+=`<rect x="${W*0.88}" y="${H*0.32}" width="${W*0.1}" height="${H*0.5}" rx="3" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    s+=`<line x1="${W*0.88}" y1="${H*0.57}" x2="${W*0.98}" y2="${H*0.57}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
+    s+=`<circle cx="${W*0.93}" cy="${H*0.45}" r="3" fill="${dim(c,0.4)}"/>`;
+    s+=`<circle cx="${W*0.93}" cy="${H*0.68}" r="3" fill="${dim(c,0.4)}"/>`;
+
+  } else if(roomId==="ops"){
+    // ── OPS COMMAND CENTER
+    // Main operations console / L-shaped desk
+    // Long desk
+    s+=`<rect x="${W*0.12}" y="${H*0.35}" width="${W*0.76}" height="${H*0.12}" rx="4" fill="${dim('#1a2a18',0.95)}" stroke="${dim(c,0.5)}" stroke-width="2"/>`;
+    s+=`<rect x="${W*0.14}" y="${H*0.36}" width="${W*0.72}" height="${H*0.09}" rx="3" fill="${dim('#0d1a0d',0.85)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
+    // Multiple monitors
+    [[W*0.22,H*0.36],[W*0.38,H*0.36],[W*0.5,H*0.34],[W*0.62,H*0.36],[W*0.78,H*0.36]].forEach(([mx,my],mi)=>{
+      const mw=W*0.1, mh=H*0.13;
+      const screenColors=["#f5a623","#34d399","#f5a623","#c084fc","#34d399"];
+      s+=`<rect x="${mx-mw/2}" y="${my-mh}" width="${mw}" height="${mh}" rx="2" fill="${dim('#111',0.97)}" stroke="${dim(screenColors[mi],0.4)}" stroke-width="1.5"/>`;
+      s+=`<rect x="${mx-mw/2+2}" y="${my-mh+2}" width="${mw-4}" height="${mh-4}" rx="1" fill="${dim(screenColors[mi],0.08)}"/>`;
+      // Screen content lines
+      for(let li=0;li<4;li++){
+        s+=`<line x1="${mx-mw/2+6}" y1="${my-mh+8+li*10}" x2="${mx-mw/2+mw-6}" y2="${my-mh+8+li*10}" stroke="${dim(screenColors[mi],0.25)}" stroke-width="1"/>`;
+      }
+      // Monitor stand
+      s+=`<rect x="${mx-5}" y="${my}" width="10" height="${H*0.04}" rx="1" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
+      s+=`<rect x="${mx-12}" y="${my+H*0.04}" width="24" height="4" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+    });
+    // Server rack on back wall
+    s+=`<rect x="${W*0.02}" y="${H*0.08}" width="${W*0.1}" height="${H*0.75}" rx="4" fill="${dim('#0d1a0d',0.95)}" stroke="${dim(c,0.35)}" stroke-width="2"/>`;
+    for(let ri=0;ri<12;ri++){
+      s+=`<rect x="${W*0.025}" y="${H*0.1+ri*H*0.056}" width="${W*0.09}" height="${H*0.045}" rx="1" fill="${dim('#111',0.9)}" stroke="${dim(c,0.15)}" stroke-width="0.5"/>`;
+      s+=`<circle cx="${W*0.095}" cy="${H*0.122+ri*H*0.056}" r="3" fill="${dim(ri%3===0?'#34d399':'#f5a623',0.7)}"/>`;
+    }
+    // Cable management lines
+    for(let ci=0;ci<6;ci++){
+      s+=`<line x1="${W*0.12}" y1="${H*0.35}" x2="${W*0.12}" y2="${H*0.1+ci*H*0.1}" stroke="${dim(c,0.08)}" stroke-width="1" stroke-dasharray="2,4"/>`;
+    }
+    // CORA display — large center screen on wall
+    s+=`<rect x="${W*0.25}" y="${H*0.05}" width="${W*0.5}" height="${H*0.22}" rx="4" fill="${dim('#0a1a0a',0.97)}" stroke="${dim(c,0.55)}" stroke-width="2"/>`;
+    s+=`<rect x="${W*0.255}" y="${H*0.055}" width="${W*0.49}" height="${H*0.21}" rx="3" fill="${dim(c,0.06)}"/>`;
+    // CORA label
+    s+=`<text x="${W*0.5}" y="${H*0.12}" text-anchor="middle" font-size="10" fill="${dim(c,0.7)}" font-family="'Orbitron',monospace" letter-spacing="4">CORA</text>`;
+    s+=`<text x="${W*0.5}" y="${H*0.145}" text-anchor="middle" font-size="7" fill="${dim(c,0.35)}" font-family="'Share Tech Mono',monospace" letter-spacing="2">CENTRAL ORCHESTRATION</text>`;
+    // Status bars
+    for(let bi=0;bi<4;bi++){
+      const bw2=W*0.06+Math.random()*W*0.15;
+      s+=`<rect x="${W*0.3}" y="${H*0.17+bi*H*0.028}" width="${bw2}" height="${H*0.016}" rx="2" fill="${dim(c,0.3)}"/>`;
+      s+=`<rect x="${W*0.3}" y="${H*0.17+bi*H*0.028}" width="${W*0.35}" height="${H*0.016}" rx="2" fill="none" stroke="${dim(c,0.12)}" stroke-width="0.5"/>`;
+    }
+    // Network status lights on wall
+    [[W*0.88,H*0.35],[W*0.88,H*0.5],[W*0.88,H*0.65]].forEach(([lx2,ly2],li)=>{
+      const lc=li===0?"#34d399":li===1?"#f5a623":"#34d399";
+      s+=`<circle cx="${lx2}" cy="${ly2}" r="5" fill="${dim(lc,0.6)}" filter="url(#softGlow)"/>`;
+      s+=`<text x="${lx2+10}" y="${ly2+4}" font-size="7" fill="${dim(lc,0.5)}" font-family="'Share Tech Mono',monospace">${["LIVE","SYNC","CRON"][li]}</text>`;
+    });
+  }
+
+  svg.innerHTML=s;
+}
+
+// ── PANELS ────────────────────────────────────────────────────────────────
+function togglePanel(id){openPanels.has(id)?closePanel(id):openPanel(id);}
+function openPanel(id){openPanels.add(id);document.getElementById(id).classList.add("open");syncBtns();}
+function closePanel(id){openPanels.delete(id);document.getElementById(id).classList.remove("open");syncBtns();}
+function closeAllPanels(){PANELS.forEach(p=>closePanel(p));}
+function syncBtns(){
+  const c=room?room.color:"#f5a623";
+  const map={videoStrip:"btnCam",contentPane:"btnContent",notesPane:"btnNotes",chatPane:"btnChat",lobbyPane:"btnLobby"};
+  Object.entries(map).forEach(([panel,btn])=>{const b=document.getElementById(btn);if(b)styleBtn(b,openPanels.has(panel),panel==="lobbyPane"?"#e05c2a":c);});
+}
+
+// ── PARTICLES ─────────────────────────────────────────────────────────────
+(()=>{
+  const c=document.getElementById("particles");
+  for(let i=0;i<18;i++){
+    const p=document.createElement("div");
+    p.style.cssText="position:absolute;border-radius:50%;background:#f5a623;left:"+(((i*7+11)%100))+"%;top:"+(((i*13+9)%100))+"%;width:"+(i%5===0?2:1)+"px;height:"+(i%5===0?2:1)+"px;animation:floatUp "+(5+i%5)+"s "+(i*0.4).toFixed(1)+"s ease-in-out infinite;opacity:0;";
+    c.appendChild(p);
   }
 })();
 
-// ─── SCREEN SWITCHER ─────────────────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById("screen-" + id).classList.add("active");
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById("screen-"+id).classList.add("active");}
+function toast(msg,cls=""){const t=document.createElement("div");t.className="toast"+(cls?" "+cls:"");t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
+function escHtml(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function getRoomFromURL(){return new URLSearchParams(window.location.search).get("room");}
+
+// ── NAME ENTRY ────────────────────────────────────────────────────────────
+document.getElementById("nameInput").addEventListener("keydown",e=>e.key==="Enter"&&doEnter());
+document.getElementById("nameBtn").addEventListener("click",doEnter);
+function doEnter(){
+  const v=document.getElementById("nameInput").value.trim();if(!v)return;
+  myName=v;document.getElementById("navUser").textContent="● "+v.toUpperCase();
+  const rp=getRoomFromURL();
+  if(rp){const r=ROOMS.find(x=>x.id===rp);if(r){initiateRoomEntry(r);return;}}
+  buildRooms();show("hub");
 }
 
-// ─── NAME ENTRY ──────────────────────────────────────────────────────────────
-document.getElementById("name-input").addEventListener("keydown", e => {
-  if (e.key === "Enter") enterHub();
-});
-document.getElementById("name-enter").addEventListener("click", enterHub);
-
-function enterHub() {
-  const val = document.getElementById("name-input").value.trim();
-  if (!val) return;
-  myName = val;
-  document.getElementById("hub-user-badge").textContent = `● ${myName.toUpperCase()}`;
-  renderRooms();
-  showScreen("hub");
+// ── PIN ───────────────────────────────────────────────────────────────────
+function buildPinPad(){
+  const np=document.getElementById("pinNumpad");np.innerHTML="";
+  [1,2,3,4,5,6,7,8,9].forEach(n=>{const k=document.createElement("button");k.className="pin-key";k.textContent=n;k.onclick=()=>pinPress(String(n));np.appendChild(k);});
+  const del=document.createElement("button");del.className="pin-key";del.textContent="⌫";del.onclick=pinDelete;np.appendChild(del);
+  const z=document.createElement("button");z.className="pin-key wide";z.textContent="0";z.onclick=()=>pinPress("0");np.appendChild(z);
+}
+buildPinPad();
+function pinPress(d){if(pinBuffer.length>=4)return;pinBuffer+=d;updatePinDots();if(pinBuffer.length===4)setTimeout(checkPin,200);}
+function pinDelete(){pinBuffer=pinBuffer.slice(0,-1);updatePinDots();}
+function updatePinDots(){for(let i=0;i<4;i++)document.getElementById("pd"+i).className="pin-dot"+(i<pinBuffer.length?" filled":"");}
+async function checkPin(){
+  if(!pendingRoom)return;
+  const{data}=await sb.from("meeting_rooms").select("pin").eq("id",pendingRoom.id).single();
+  if(data&&data.pin&&data.pin===pinBuffer){document.getElementById("pinError").textContent="";pinBuffer="";updatePinDots();proceedAfterPin(pendingRoom);}
+  else{document.getElementById("pinError").textContent="✗ INCORRECT PIN";pinBuffer="";updatePinDots();}
 }
 
-// ─── ROOMS GRID ──────────────────────────────────────────────────────────────
-function renderRooms() {
-  const grid = document.getElementById("rooms-grid");
-  grid.innerHTML = "";
-  ROOMS.forEach(room => {
-    const card = document.createElement("div");
-    card.className = "room-card";
-    card.style.cssText = `
-      background: radial-gradient(ellipse at 20% 20%, ${room.color}0e, #040d1a);
-      border: 1px solid ${room.color}2a;
-    `;
-    card.innerHTML = `
-      <div class="room-icon">${room.icon}</div>
-      <div class="room-name" style="color:${room.color}">${room.name.toUpperCase()}</div>
-      <div class="room-desc">${room.desc}</div>
-      <div class="room-enter" style="color:${room.color}">▸ ENTER</div>
-    `;
-    card.addEventListener("mouseenter", () => {
-      card.style.border = `1px solid ${room.color}55`;
-      card.style.boxShadow = `0 0 28px ${room.color}18`;
-    });
-    card.addEventListener("mouseleave", () => {
-      card.style.border = `1px solid ${room.color}2a`;
-      card.style.boxShadow = "none";
-    });
-    card.addEventListener("click", () => enterRoom(room));
-    grid.appendChild(card);
-  });
+// ── ROOM ENTRY FLOW ───────────────────────────────────────────────────────
+async function initiateRoomEntry(r){
+  pendingRoom=r;
+  const{data}=await sb.from("meeting_rooms").select("pin,is_locked").eq("id",r.id).single();
+  if(data&&data.is_locked&&data.pin){document.getElementById("pinRoomName").textContent=r.icon+" "+r.name.toUpperCase();pinBuffer="";updatePinDots();show("pin");return;}
+  proceedAfterPin(r);
 }
-
-// ─── ENTER ROOM ──────────────────────────────────────────────────────────────
-async function enterRoom(room) {
-  activeRoom = room;
-  mySeatId = null;
-  occupants = {};
-
-  // Header
-  document.getElementById("room-icon-hdr").textContent = room.icon;
-  document.getElementById("room-name-hdr").textContent = room.name.toUpperCase();
-  document.getElementById("room-name-hdr").style.color = room.color;
-  document.getElementById("room-desc-hdr").textContent = room.desc;
-
-  // Floor atmosphere
-  document.getElementById("floor-bg").style.background =
-    `radial-gradient(ellipse at 50% 50%, ${room.color}07 0%, #040810 65%)`;
-
-  // Center table color
-  document.querySelector(".center-table").style.cssText = `
-    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:140px;height:90px;border-radius:45px;
-    background:radial-gradient(ellipse,${room.color}07,transparent);
-    border:1px solid ${room.color}1a;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  `;
-  document.querySelector(".center-table .tlabel").style.color = `${room.color}55`;
-
-  // Controls color
-  const btns = [document.getElementById("btn-mic"), document.getElementById("btn-cam"), document.getElementById("btn-chat")];
-  btns.forEach(b => { b.style.border = `1px solid ${room.color}33`; });
-  document.getElementById("chat-header").style.color = room.color;
-  document.getElementById("chat-header").style.borderBottom = `1px solid ${room.color}1a`;
-
-  // Grid
-  renderFloorGrid(room.color);
-
-  // Chat
-  setChatOpen(false);
-  document.getElementById("chat-messages").innerHTML = "";
-  addChatMsg("SYSTEM", `Welcome to ${room.name}. Take a seat.`);
-
-  // Load + subscribe
-  await loadPresence(room.id);
-  subscribeRoom(room.id);
-  renderSeats();
-
-  // Ping
-  if (pingInterval) clearInterval(pingInterval);
-  pingInterval = setInterval(async () => {
-    if (mySeatId) {
-      await sb.from("room_presence").update({ last_ping: new Date().toISOString() }).eq("session_id", SESSION_ID);
-    }
-  }, 20000);
-
-  showScreen("room");
-}
-
-// ─── FLOOR GRID SVG ──────────────────────────────────────────────────────────
-function renderFloorGrid(color) {
-  const svg = document.getElementById("floor-grid");
-  let html = "";
-  for (let i = 1; i < 14; i++) html += `<line x1="${i*7.14}%" y1="0" x2="${i*7.14}%" y2="100%" stroke="${color}" stroke-width="0.5"/>`;
-  for (let i = 1; i < 10; i++) html += `<line x1="0" y1="${i*11.1}%" x2="100%" y2="${i*11.1}%" stroke="${color}" stroke-width="0.5"/>`;
-  svg.innerHTML = html;
-  svg.style.opacity = "0.05";
-}
-
-// ─── LOAD PRESENCE ───────────────────────────────────────────────────────────
-async function loadPresence(roomId) {
-  const { data } = await sb.from("room_presence").select("*").eq("room_id", roomId);
-  occupants = {};
-  (data || []).forEach(row => { occupants[row.seat_id] = row; });
-}
-
-// ─── SUBSCRIBE ───────────────────────────────────────────────────────────────
-function subscribeRoom(roomId) {
-  if (sub) sb.removeChannel(sub);
-  sub = sb.channel(`room:${roomId}`)
-    .on("postgres_changes", { event: "*", schema: "public", table: "room_presence", filter: `room_id=eq.${roomId}` },
-      payload => {
-        if (payload.eventType === "DELETE") {
-          Object.keys(occupants).forEach(k => {
-            if (occupants[k].id === payload.old.id) delete occupants[k];
-          });
-        } else {
-          occupants[payload.new.seat_id] = payload.new;
-          // Remove from old seat if moved
-          Object.keys(occupants).forEach(k => {
-            if (Number(k) !== payload.new.seat_id && occupants[k].session_id === payload.new.session_id) {
-              delete occupants[k];
-            }
-          });
-        }
-        renderSeats();
-      })
-    .subscribe();
-}
-
-// ─── RENDER SEATS ────────────────────────────────────────────────────────────
-function renderSeats() {
-  const floor = document.getElementById("meeting-floor");
-  document.querySelectorAll(".seat").forEach(el => el.remove());
-  const color = activeRoom?.color || "#00d4ff";
-  const count = Object.keys(occupants).length;
-
-  document.getElementById("floor-count").textContent = `${count} / ${SEATS.length} SEATS OCCUPIED`;
-  document.getElementById("floor-count").style.color = `${color}55`;
-  document.getElementById("floor-hint").style.display = mySeatId ? "none" : "block";
-
-  SEATS.forEach(seat => {
-    const occ = occupants[seat.id];
-    const isYou = mySeatId === seat.id;
-    const div = document.createElement("div");
-    div.className = "seat";
-    div.style.left = `${seat.x}%`;
-    div.style.top = `${seat.y}%`;
-
-    let circleClass = "seat-circle ";
-    circleClass += occ ? (isYou ? "is-you occupied" : "occupied") : "empty";
-
-    let circleStyle = "";
-    if (occ && !isYou) {
-      circleStyle = `background:radial-gradient(circle at 35% 35%,${color}1a,#040810);border:2px solid ${color}66;box-shadow:0 0 14px ${color}2a;`;
-    } else if (occ && isYou) {
-      circleStyle = `background:radial-gradient(circle at 35% 35%,rgba(0,212,255,0.25),#040810);`;
-    }
-
-    div.innerHTML = `
-      <div class="${circleClass}" style="${circleStyle}">
-        <span class="seat-emoji">${occ ? occ.avatar : "➕"}</span>
-        ${occ ? `<span class="seat-name" style="color:${isYou?"#00d4ff":"rgba(255,255,255,0.6)"}">${isYou?"● YOU":occ.user_name.split(" ")[0]}</span>` : ""}
-      </div>
-      ${isYou ? `<div class="seat-you-label">▸ SEATED</div>` : !occ ? `<div class="seat-label">SEAT ${seat.id}</div>` : ""}
-    `;
-    div.addEventListener("click", () => handleSeatClick(seat.id));
-    floor.appendChild(div);
-  });
-
-  // Live indicator
-  const li = document.getElementById("live-indicator");
-  if (mySeatId) {
-    li.textContent = "● LIVE";
-    li.className = "live-indicator live";
-  } else {
-    li.textContent = "○ CHOOSE SEAT";
-    li.className = "live-indicator";
-  }
-}
-
-// ─── SEAT CLICK ──────────────────────────────────────────────────────────────
-async function handleSeatClick(seatId) {
-  if (!activeRoom) return;
-
-  // Leave current seat
-  if (mySeatId === seatId) {
-    await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
-    delete occupants[seatId];
-    mySeatId = null;
-    addChatMsg("SYSTEM", `${myName} left their seat.`);
-    renderSeats();
+function proceedAfterPin(r){
+  if(r.requireLead&&!leadCaptured&&!isHost){document.getElementById("leadName").value=myName;show("lead");
+    document.getElementById("leadSubmit").onclick=async()=>{
+      const n=document.getElementById("leadName").value.trim();
+      const e=document.getElementById("leadEmail").value.trim();
+      const ph=document.getElementById("leadPhone").value.trim();
+      if(!n)return;await saveLead(r.id,n,e,ph);leadCaptured=true;proceedToLobbyOrRoom(r);
+    };
+    document.getElementById("leadSkip").onclick=()=>{leadCaptured=true;proceedToLobbyOrRoom(r);};
     return;
   }
-
-  // Blocked
-  if (occupants[seatId] && occupants[seatId].session_id !== SESSION_ID) return;
-
-  // Remove old seat
-  if (mySeatId) {
-    await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
-    delete occupants[mySeatId];
+  proceedToLobbyOrRoom(r);
+}
+async function saveLead(roomId,name,email,phone){
+  await sb.from("room_leads").upsert({room_id:roomId,full_name:name,email:email||null,phone:phone||null,session_id:SID},{onConflict:"session_id"});
+  if(GHL_WEBHOOK&&GHL_WEBHOOK!=="%%GHL_WEBHOOK%%"){try{await fetch(GHL_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,email,phone,room:roomId,source:"28FM Virtual Hub"})});}catch(e){}}
+}
+async function proceedToLobbyOrRoom(r){
+  if(r.requireLobby&&!isHost){
+    const{data}=await sb.from("room_presence").select("*").eq("room_id",r.id);
+    if(data&&data.length>0){
+      await sb.from("room_lobby").upsert({room_id:r.id,user_name:myName,avatar:myEmoji,session_id:SID,status:"waiting",last_ping:new Date().toISOString()},{onConflict:"session_id"});
+      document.getElementById("lobbyNameBadge").textContent="● "+myName.toUpperCase();
+      show("lobby");startLobbyWatch(r);return;
+    }
   }
+  isHost=true;enterRoom(r);
+}
+function startLobbyWatch(r){
+  const ch=sb.channel("lw:"+SID).on("postgres_changes",{event:"UPDATE",schema:"public",table:"room_lobby",filter:"session_id=eq."+SID},p=>{
+    if(p.new.status==="admitted"){sb.removeChannel(ch);isHost=false;enterRoom(r);}
+    if(p.new.status==="denied"){sb.removeChannel(ch);show("hub");toast("ACCESS DENIED BY HOST");}
+  }).subscribe();
+  document.getElementById("lobbyCancel").onclick=async()=>{sb.removeChannel(ch);await sb.from("room_lobby").delete().eq("session_id",SID);show("hub");};
+}
 
-  const wasSeated = mySeatId !== null;
-  mySeatId = seatId;
+// ── ROOM CARDS ────────────────────────────────────────────────────────────
+function buildRooms(){
+  const g=document.getElementById("roomsGrid");g.innerHTML="";
+  ROOMS.forEach(r=>{
+    const d=document.createElement("div");d.className="room-card";
+    d.style.cssText="background:radial-gradient(ellipse at 20% 20%,"+r.color+"0e,#1a1208);border:1px solid "+r.color+"30;";
+    d.innerHTML="<div class='rc-icon'>"+r.icon+"</div><div class='rc-name' style='color:"+r.color+"'>"+r.name.toUpperCase()+"</div><div class='rc-desc'>"+r.desc+"</div><div class='rc-cta' style='color:"+r.color+"'>▸ ENTER</div>"+(r.requireLead?"<div class='rc-lock'>🔐</div>":"");
+    d.onmouseenter=()=>{d.style.borderColor=r.color+"55";d.style.boxShadow="0 0 28px "+r.color+"18";};
+    d.onmouseleave=()=>{d.style.borderColor=r.color+"30";d.style.boxShadow="none";};
+    d.onclick=()=>initiateRoomEntry(r);
+    g.appendChild(d);
+  });
+}
 
-  const { error } = await sb.from("room_presence").upsert({
-    room_id: activeRoom.id, seat_id: seatId,
-    user_name: myName, avatar: myAvatar,
-    session_id: SESSION_ID,
-    mic_on: micOn, cam_on: camOn,
-    last_ping: new Date().toISOString(),
-  }, { onConflict: "session_id" });
+// ── ENTER ROOM ────────────────────────────────────────────────────────────
+async function enterRoom(r){
+  room=r;mySeat=null;occupants={};reactions={};lobbyGuests={};
+  const c=r.color;
+  document.getElementById("rIcon").textContent=r.icon;
+  document.getElementById("rName").textContent=r.name.toUpperCase();
+  document.getElementById("rName").style.color=c;
+  document.getElementById("rDesc").textContent=r.desc;
+  ["btnMic","btnCam","btnHand","btnContent","btnNotes","btnChat","btnShare"].forEach(id=>styleBtn(document.getElementById(id),false,c));
+  document.getElementById("videoHeader").style.color=c;
+  document.getElementById("contentHeader").style.color=c;
+  document.getElementById("notesHeader").style.color=c;
+  document.getElementById("chatHeader").style.color=c;
+  document.getElementById("floorStat").style.color=c+"55";
+  document.getElementById("chatInput").style.cssText="flex:1;border-radius:3px;padding:7px 9px;color:#f5e6cc;font-size:8px;letter-spacing:0.1em;outline:none;font-family:'Share Tech Mono',monospace;background:"+c+"07;border:1px solid "+c+"18;";
+  document.getElementById("chatSend").style.cssText="border-radius:3px;padding:7px 10px;cursor:pointer;font-size:10px;background:"+c+"18;border:1px solid "+c+"44;color:"+c+";";
+  document.getElementById("notesSave").style.cssText="flex:1;border-radius:3px;padding:7px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;background:"+c+"18;border:1px solid "+c+"44;color:"+c+";";
+  document.getElementById("notesCopy").style.cssText="flex:1;border-radius:3px;padding:7px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;background:rgba(245,230,200,0.03);border:1px solid rgba(245,230,200,0.1);color:rgba(245,230,200,0.4);";
+  document.getElementById("contentAddBtn").style.cssText="width:100%;border-radius:3px;padding:6px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;background:"+c+"18;border:1px solid "+c+"44;color:"+c+";";
+  if(isHost){document.getElementById("btnLobby").style.display="flex";styleBtn(document.getElementById("btnLobby"),false,"#e05c2a");}
+  closeAllPanels();document.getElementById("chatMsgs").innerHTML="";document.getElementById("notesTextarea").value="";
+  show("room");
+  // Draw room AFTER screen is visible so dimensions are available
+  setTimeout(()=>drawRoom(r.id,c),50);
+  await loadPresence(r.id);await loadRecentMessages(r.id);await loadContent(r.id);await loadNotes(r.id);await loadReactions(r.id);
+  if(isHost)await loadLobby(r.id);
+  subscribePresence(r.id);subscribeChat(r.id);subscribeReactions(r.id);subscribeContent(r.id);
+  if(isHost)subscribeLobby(r.id);
+  renderSeats();
+  if(pingTimer)clearInterval(pingTimer);
+  pingTimer=setInterval(async()=>{if(mySeat)await sb.from("room_presence").update({last_ping:new Date().toISOString()}).eq("session_id",SID);},20000);
+  if(notesTimer)clearInterval(notesTimer);
+  notesTimer=setInterval(saveNotes,10000);
+  // Redraw on resize
+  window.addEventListener("resize",()=>{if(room)drawRoom(room.id,room.color);renderSeats();});
+}
 
-  if (!error) {
-    occupants[seatId] = { room_id: activeRoom.id, seat_id: seatId, user_name: myName, avatar: myAvatar, session_id: SESSION_ID, mic_on: micOn, cam_on: camOn };
-    if (!wasSeated) addChatMsg("SYSTEM", `${myName} joined the room.`);
+// ── PRESENCE ─────────────────────────────────────────────────────────────
+async function loadPresence(rid){const{data}=await sb.from("room_presence").select("*").eq("room_id",rid);occupants={};(data||[]).forEach(r=>{occupants[r.seat_id]=r;});}
+function subscribePresence(rid){
+  if(presenceSub)sb.removeChannel(presenceSub);
+  presenceSub=sb.channel("pres:"+rid).on("postgres_changes",{event:"*",schema:"public",table:"room_presence",filter:"room_id=eq."+rid},p=>{
+    if(p.eventType==="DELETE"){Object.keys(occupants).forEach(k=>{if(occupants[k].id===p.old.id)delete occupants[k];});}
+    else{Object.keys(occupants).forEach(k=>{if(occupants[k].session_id===p.new.session_id&&Number(k)!==p.new.seat_id)delete occupants[k];});occupants[p.new.seat_id]=p.new;}
+    renderSeats();
+  }).subscribe();
+}
+
+// ── CHAT ─────────────────────────────────────────────────────────────────
+async function loadRecentMessages(rid){
+  const{data}=await sb.from("room_messages").select("*").eq("room_id",rid).order("created_at",{ascending:true}).limit(50);
+  (data||[]).forEach(m=>renderMsg(m.user_name,m.message,false,m.user_name==="SYSTEM"));
+}
+function subscribeChat(rid){
+  if(chatSub)sb.removeChannel(chatSub);
+  chatSub=sb.channel("chat:"+rid).on("postgres_changes",{event:"INSERT",schema:"public",table:"room_messages",filter:"room_id=eq."+rid},p=>{
+    if(p.new.session_id!==SID)renderMsg(p.new.user_name,p.new.message,false,p.new.user_name==="SYSTEM");
+  }).subscribe();
+}
+function renderMsg(from,text,isMe,isSystem){
+  const c=room?room.color:"#f5a623";const msgs=document.getElementById("chatMsgs");
+  const d=document.createElement("div");
+  d.innerHTML="<div class='msg-from' style='color:"+(isSystem?"rgba(245,230,200,0.2)":isMe?c:c+"99")+"'>"+escHtml(from)+"</div><div class='msg-text' style='color:"+(isSystem?"rgba(245,230,200,0.3)":isMe?"#f5e6cc":"#c8a87a")+"'>"+escHtml(text)+"</div>";
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+document.getElementById("chatSend").onclick=doChat;
+document.getElementById("chatInput").addEventListener("keydown",e=>e.key==="Enter"&&doChat());
+async function doChat(){
+  const v=document.getElementById("chatInput").value.trim();if(!v||!room)return;
+  document.getElementById("chatInput").value="";renderMsg(myName,v,true,false);
+  await sb.from("room_messages").insert({room_id:room.id,user_name:myName,avatar:myEmoji,message:v,session_id:SID});
+}
+
+// ── REACTIONS ─────────────────────────────────────────────────────────────
+async function loadReactions(rid){const{data}=await sb.from("room_reactions").select("*").eq("room_id",rid);reactions={};(data||[]).forEach(r=>{reactions[r.session_id]=r;});}
+function subscribeReactions(rid){
+  if(reactionSub)sb.removeChannel(reactionSub);
+  reactionSub=sb.channel("react:"+rid).on("postgres_changes",{event:"*",schema:"public",table:"room_reactions",filter:"room_id=eq."+rid},p=>{
+    if(p.eventType==="DELETE")delete reactions[p.old.session_id];
+    else reactions[p.new.session_id]=p.new;
+    renderSeats();
+  }).subscribe();
+}
+document.getElementById("btnHand").onclick=async()=>{
+  if(!room||!mySeat)return;
+  handRaised=!handRaised;styleBtn(document.getElementById("btnHand"),handRaised,room.color);
+  if(handRaised)await sb.from("room_reactions").upsert({room_id:room.id,seat_id:mySeat,user_name:myName,session_id:SID,reaction:"hand"},{onConflict:"room_id,session_id"});
+  else await sb.from("room_reactions").delete().eq("session_id",SID).eq("room_id",room.id);
+};
+
+// ── CONTENT ───────────────────────────────────────────────────────────────
+async function loadContent(rid){const{data}=await sb.from("room_content").select("*").eq("room_id",rid).order("position");renderContent(data||[]);}
+function subscribeContent(rid){
+  if(contentSub)sb.removeChannel(contentSub);
+  contentSub=sb.channel("cont:"+rid).on("postgres_changes",{event:"*",schema:"public",table:"room_content",filter:"room_id=eq."+rid},async()=>{const{data}=await sb.from("room_content").select("*").eq("room_id",rid).order("position");renderContent(data||[]);}).subscribe();
+}
+function renderContent(items){
+  const list=document.getElementById("contentList");list.innerHTML="";
+  items.forEach(item=>{
+    const d=document.createElement("div");d.className="content-item";
+    d.innerHTML="<div class='ci-type' style='color:"+(room?room.color:"#f5a623")+"'>"+escHtml(item.content_type.toUpperCase())+"</div><div class='ci-title'>"+escHtml(item.title)+"</div>"+(item.url?"<div class='ci-url'>"+escHtml(item.url)+"</div>":"");
+    if(item.url)d.onclick=()=>window.open(item.url,"_blank");
+    list.appendChild(d);
+  });
+}
+document.getElementById("contentAddBtn").onclick=async()=>{
+  const title=document.getElementById("contentTitle").value.trim();
+  const url=document.getElementById("contentUrl").value.trim();
+  if(!title||!room)return;
+  await sb.from("room_content").insert({room_id:room.id,title,url:url||null,content_type:url?"link":"note",created_by:myName});
+  document.getElementById("contentTitle").value="";document.getElementById("contentUrl").value="";
+};
+
+// ── NOTES ─────────────────────────────────────────────────────────────────
+async function loadNotes(rid){
+  const today=new Date().toISOString().split("T")[0];
+  const{data}=await sb.from("room_notes").select("*").eq("room_id",rid).eq("session_date",today).maybeSingle();
+  if(data)document.getElementById("notesTextarea").value=data.content||"";
+}
+async function saveNotes(){
+  if(!room)return;
+  const content=document.getElementById("notesTextarea").value;
+  const today=new Date().toISOString().split("T")[0];
+  await sb.from("room_notes").upsert({room_id:room.id,session_date:today,content,updated_by:myName,updated_at:new Date().toISOString()},{onConflict:"room_id,session_date"});
+}
+document.getElementById("notesSave").onclick=async()=>{await saveNotes();toast("NOTES SAVED","green");};
+document.getElementById("notesCopy").onclick=()=>{navigator.clipboard.writeText(document.getElementById("notesTextarea").value).then(()=>toast("NOTES COPIED","green"));};
+
+// ── LOBBY ─────────────────────────────────────────────────────────────────
+async function loadLobby(rid){
+  const{data}=await sb.from("room_lobby").select("*").eq("room_id",rid).eq("status","waiting");
+  lobbyGuests={};(data||[]).forEach(g=>{lobbyGuests[g.session_id]=g;});renderLobby();
+}
+function subscribeLobby(rid){
+  if(lobbySub)sb.removeChannel(lobbySub);
+  lobbySub=sb.channel("lobby:"+rid).on("postgres_changes",{event:"*",schema:"public",table:"room_lobby",filter:"room_id=eq."+rid},p=>{
+    if(p.eventType==="DELETE"||p.new?.status!=="waiting")delete lobbyGuests[p.old?.session_id||p.new?.session_id];
+    else lobbyGuests[p.new.session_id]=p.new;
+    renderLobby();const cnt=Object.keys(lobbyGuests).length;
+    if(cnt>0)toast("⚡ "+cnt+" GUEST"+(cnt>1?"S":"")+" WAITING");
+  }).subscribe();
+}
+function renderLobby(){
+  const list=document.getElementById("lobbyList");list.innerHTML="";
+  const guests=Object.values(lobbyGuests);
+  document.getElementById("lobbyCount").textContent=guests.length>0?"("+guests.length+")":"";
+  const existing=document.getElementById("lobbyAlertEl");if(existing)existing.remove();
+  if(guests.length>0){
+    const alert=document.createElement("div");alert.className="lobby-alert";alert.id="lobbyAlertEl";
+    alert.textContent="⚡ "+guests.length+" GUEST"+(guests.length>1?"S":"")+" WAITING → VIEW LOBBY";
+    alert.onclick=()=>togglePanel("lobbyPane");document.getElementById("floor").appendChild(alert);
   }
+  if(guests.length===0){const e=document.createElement("div");e.style.cssText="padding:20px;text-align:center;font-size:8px;letter-spacing:0.2em;color:rgba(245,230,200,0.2);";e.textContent="NO GUESTS WAITING";list.appendChild(e);return;}
+  guests.forEach(g=>{
+    const d=document.createElement("div");d.className="lobby-guest";
+    const waited=Math.round((Date.now()-new Date(g.requested_at).getTime())/1000);
+    d.innerHTML="<div><div class='lg-name'>"+g.avatar+" "+escHtml(g.user_name)+"</div><div class='lg-time'>Waiting "+waited+"s</div></div><div class='lg-actions'><button class='lg-admit'>ADMIT</button><button class='lg-deny'>DENY</button></div>";
+    d.querySelector(".lg-admit").onclick=async()=>{await sb.from("room_lobby").update({status:"admitted"}).eq("session_id",g.session_id);delete lobbyGuests[g.session_id];renderLobby();};
+    d.querySelector(".lg-deny").onclick=async()=>{await sb.from("room_lobby").update({status:"denied"}).eq("session_id",g.session_id);delete lobbyGuests[g.session_id];renderLobby();};
+    list.appendChild(d);
+  });
+}
+
+// ── RENDER SEATS ──────────────────────────────────────────────────────────
+function renderSeats(){
+  const fl=document.getElementById("floor");fl.querySelectorAll(".seat").forEach(e=>e.remove());
+  if(!room)return;
+  const c=room.color;const seats=ROOM_SEATS[room.id]||ROOM_SEATS.strategy;
+  const cnt=Object.keys(occupants).length;
+  document.getElementById("floorStat").textContent=cnt+" / "+seats.length+" SEATS OCCUPIED";
+  document.getElementById("floorTip").style.display=mySeat?"none":"block";
+  seats.forEach(s=>{
+    const occ=occupants[s.id];const isYou=mySeat===s.id;
+    const div=document.createElement("div");div.className="seat";div.style.cssText="left:"+s.x+"%;top:"+s.y+"%;";
+    let rc="seat-ring ",rs="";
+    if(isYou){rc+="you taken";rs="background:radial-gradient(circle at 35% 35%,"+c+"28,#0d0a08);";}
+    else if(occ){rc+="taken";rs="background:radial-gradient(circle at 35% 35%,"+c+"18,#0d0a08);border:2px solid "+c+"55;box-shadow:0 0 16px "+c+"22;";}
+    else rc+="empty";
+    const hasHand=occ&&reactions[occ.session_id]&&reactions[occ.session_id].reaction==="hand";
+    const badges=[];if(occ&&occ.mic_on)badges.push("🎤");if(occ&&occ.cam_on)badges.push("📷");
+    div.innerHTML=(hasHand?"<div class='hand-indicator'>✋</div>":"")+"<div class='"+rc+"' style='"+rs+"'><span class='seat-emoji'>"+(occ?occ.avatar:"➕")+"</span>"+(occ?"<span class='seat-uname' style='color:"+(isYou?c:"rgba(245,230,200,0.55)")+"'>"+(isYou?"● YOU":occ.user_name.split(" ")[0])+"</span>":"")+( badges.length?"<div class='seat-badges'>"+badges.map(b=>"<span class='seat-badge'>"+b+"</span>").join("")+"</div>":"")+"</div>"+(isYou?"<div class='seat-sub' style='color:"+c+";text-shadow:0 0 8px "+c+"'>▸ SEATED</div>":!occ?"<div class='seat-sub' style='color:"+c+"44'>"+s.label+"</div>":"");
+    div.onclick=()=>clickSeat(s.id);fl.appendChild(div);
+  });
+  const ld=document.getElementById("liveDot");ld.textContent=mySeat?"● LIVE":"○ CHOOSE SEAT";ld.className="live-dot"+(mySeat?" on":"");
+}
+
+async function clickSeat(sid){
+  if(!room)return;
+  if(mySeat===sid){await sb.from("room_presence").delete().eq("session_id",SID);delete occupants[sid];mySeat=null;renderSeats();return;}
+  if(occupants[sid]&&occupants[sid].session_id!==SID)return;
+  if(mySeat){await sb.from("room_presence").delete().eq("session_id",SID);delete occupants[mySeat];}
+  const was=mySeat!==null;mySeat=sid;
+  const{error}=await sb.from("room_presence").upsert({room_id:room.id,seat_id:sid,user_name:myName,avatar:myEmoji,session_id:SID,mic_on:micOn,cam_on:camOn,last_ping:new Date().toISOString()},{onConflict:"session_id"});
+  if(!error){occupants[sid]={room_id:room.id,seat_id:sid,user_name:myName,avatar:myEmoji,session_id:SID,mic_on:micOn,cam_on:camOn};
+    if(!was){renderMsg("SYSTEM",myName+" joined the room.",false,true);await sb.from("room_messages").insert({room_id:room.id,user_name:"SYSTEM",avatar:"",message:myName+" joined the room.",session_id:SID});}}
   renderSeats();
 }
 
-// ─── LEAVE ROOM ──────────────────────────────────────────────────────────────
-document.getElementById("btn-leave").addEventListener("click", leaveRoom);
-async function leaveRoom() {
-  if (sub) sb.removeChannel(sub);
-  if (pingInterval) clearInterval(pingInterval);
-  if (mySeatId) await sb.from("room_presence").delete().eq("session_id", SESSION_ID);
-  mySeatId = null; activeRoom = null; occupants = {};
-  showScreen("hub");
+// ── MIC / CAM ─────────────────────────────────────────────────────────────
+document.getElementById("btnMic").onclick=async()=>{micOn=!micOn;const b=document.getElementById("btnMic");b.textContent=micOn?"🎤 ON":"🎤 MIC";styleBtn(b,micOn,room?room.color:"#f5a623");if(callFrame)micOn?callFrame.setLocalAudio(true):callFrame.setLocalAudio(false);if(mySeat)await sb.from("room_presence").update({mic_on:micOn}).eq("session_id",SID);renderSeats();};
+document.getElementById("btnCam").onclick=async()=>{camOn=!camOn;const b=document.getElementById("btnCam");b.textContent=camOn?"📷 ON":"📷 CAM";if(camOn){openPanel("videoStrip");await startVideo();}else{closePanel("videoStrip");await stopVideo();}styleBtn(b,camOn,room?room.color:"#f5a623");if(mySeat)await sb.from("room_presence").update({cam_on:camOn}).eq("session_id",SID);};
+
+async function startVideo(){
+  const dc=document.getElementById("dailyContainer");
+  if(!DAILY_DOMAIN||DAILY_DOMAIN==="%%DAILY_DOMAIN%%"){dc.innerHTML="<div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:20px;text-align:center;'><div style='font-size:26px;'>📷</div><div style='font-size:8px;letter-spacing:0.15em;color:rgba(245,230,200,0.35);line-height:1.8;'>ADD DAILY_DOMAIN<br/>TO RAILWAY ENV VARS</div><a href='https://daily.co' target='_blank' style='font-size:7px;color:#f5a623;letter-spacing:0.15em;'>GET FREE ACCOUNT →</a></div>";return;}
+  try{dc.innerHTML="";if(callFrame){callFrame.destroy();callFrame=null;}callFrame=DailyIframe.createFrame(dc,{iframeStyle:{width:"100%",height:"100%",border:"none"},showLeaveButton:false,showFullscreenButton:false});await callFrame.join({url:"https://"+DAILY_DOMAIN+".daily.co/28fm-"+room.id,userName:myName,startVideoOff:false,startAudioOff:!micOn});}catch(e){console.error(e);}
 }
+async function stopVideo(){if(callFrame){await callFrame.leave();callFrame.destroy();callFrame=null;}document.getElementById("dailyContainer").innerHTML="";}
 
-// ─── MIC / CAM ───────────────────────────────────────────────────────────────
-document.getElementById("btn-mic").addEventListener("click", async () => {
-  micOn = !micOn;
-  const btn = document.getElementById("btn-mic");
-  const c = activeRoom?.color || "#00d4ff";
-  btn.textContent = micOn ? "🎤 MIC ON" : "🎤 MIC OFF";
-  btn.style.background = micOn ? `${c}18` : "rgba(255,255,255,0.03)";
-  btn.style.color = micOn ? c : "rgba(255,255,255,0.4)";
-  btn.style.border = `1px solid ${micOn ? c+"55" : c+"22"}`;
-  if (mySeatId) await sb.from("room_presence").update({ mic_on: micOn }).eq("session_id", SESSION_ID);
-});
+// ── SHARE ─────────────────────────────────────────────────────────────────
+document.getElementById("btnShare").onclick=()=>{if(!room)return;const url=window.location.origin+"?room="+room.id;navigator.clipboard.writeText(url).then(()=>toast("INVITE LINK COPIED","green"));};
 
-document.getElementById("btn-cam").addEventListener("click", async () => {
-  camOn = !camOn;
-  const btn = document.getElementById("btn-cam");
-  const c = activeRoom?.color || "#00d4ff";
-  btn.textContent = camOn ? "📷 CAM ON" : "📷 CAM OFF";
-  btn.style.background = camOn ? `${c}18` : "rgba(255,255,255,0.03)";
-  btn.style.color = camOn ? c : "rgba(255,255,255,0.4)";
-  btn.style.border = `1px solid ${camOn ? c+"55" : c+"22"}`;
-  if (mySeatId) await sb.from("room_presence").update({ cam_on: camOn }).eq("session_id", SESSION_ID);
-});
+// ── LEAVE ─────────────────────────────────────────────────────────────────
+document.getElementById("btnLeave").onclick=async()=>{
+  [presenceSub,chatSub,reactionSub,contentSub,lobbySub].forEach(s=>{if(s)sb.removeChannel(s);});
+  [pingTimer,notesTimer].forEach(t=>{if(t)clearInterval(t);});
+  await saveNotes();if(mySeat)await sb.from("room_presence").delete().eq("session_id",SID);
+  if(handRaised)await sb.from("room_reactions").delete().eq("session_id",SID);
+  await stopVideo();mySeat=null;room=null;occupants={};micOn=false;camOn=false;handRaised=false;isHost=false;leadCaptured=false;closeAllPanels();show("hub");
+};
 
-// ─── CHAT ────────────────────────────────────────────────────────────────────
-document.getElementById("btn-chat").addEventListener("click", () => setChatOpen(!chatOpen));
+// ── PANEL BUTTONS ─────────────────────────────────────────────────────────
+document.getElementById("btnContent").onclick=()=>togglePanel("contentPane");
+document.getElementById("btnNotes").onclick=()=>togglePanel("notesPane");
+document.getElementById("btnChat").onclick=()=>togglePanel("chatPane");
+document.getElementById("btnLobby").onclick=()=>togglePanel("lobbyPane");
+document.getElementById("closeVideo").onclick=()=>{closePanel("videoStrip");camOn=false;document.getElementById("btnCam").textContent="📷 CAM";styleBtn(document.getElementById("btnCam"),false,room?room.color:"#f5a623");stopVideo();};
+document.getElementById("closeContent").onclick=()=>closePanel("contentPane");
+document.getElementById("closeNotes").onclick=()=>{saveNotes();closePanel("notesPane");};
+document.getElementById("closeChat").onclick=()=>closePanel("chatPane");
+document.getElementById("closeLobby").onclick=()=>closePanel("lobbyPane");
 
-function setChatOpen(val) {
-  chatOpen = val;
-  const panel = document.getElementById("chat-panel");
-  const btn = document.getElementById("btn-chat");
-  const c = activeRoom?.color || "#00d4ff";
-  panel.style.display = val ? "flex" : "none";
-  btn.style.background = val ? `${c}18` : "rgba(255,255,255,0.03)";
-  btn.style.color = val ? c : "rgba(255,255,255,0.4)";
-  btn.style.border = `1px solid ${val ? c+"55" : c+"22"}`;
-}
+function styleBtn(btn,active,c){btn.style.background=active?c+"18":"rgba(245,230,200,0.02)";btn.style.border="1px solid "+(active?c+"44":"rgba(245,230,200,0.1)");btn.style.color=active?c:"rgba(245,230,200,0.35)";}
 
-function addChatMsg(from, text) {
-  const c = activeRoom?.color || "#00d4ff";
-  const msgs = document.getElementById("chat-messages");
-  const wrap = document.createElement("div");
-  wrap.innerHTML = `
-    <div class="chat-msg-from" style="color:${from==="SYSTEM"?"rgba(255,255,255,0.2)":c}">${from}</div>
-    <div class="chat-msg-text" style="color:${from==="SYSTEM"?"rgba(255,255,255,0.35)":"#e0f0ff"}">${text}</div>
-  `;
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-document.getElementById("chat-send").addEventListener("click", sendChat);
-document.getElementById("chat-input").addEventListener("keydown", e => { if (e.key === "Enter") sendChat(); });
-function sendChat() {
-  const val = document.getElementById("chat-input").value.trim();
-  if (!val) return;
-  addChatMsg(myName, val);
-  document.getElementById("chat-input").value = "";
-}
-
-// ─── CLEANUP ─────────────────────────────────────────────────────────────────
-window.addEventListener("beforeunload", () => {
-  sb.from("room_presence").delete().eq("session_id", SESSION_ID);
-});
+window.addEventListener("beforeunload",async()=>{await saveNotes();sb.from("room_presence").delete().eq("session_id",SID);sb.from("room_reactions").delete().eq("session_id",SID);sb.from("room_lobby").delete().eq("session_id",SID);});
+window.addEventListener("DOMContentLoaded",()=>{const rp=getRoomFromURL();if(rp){const h=document.querySelector(".brand-block .tagline");if(h)h.textContent="YOU HAVE BEEN INVITED TO JOIN A MEETING";}});
 </script>
 </body>
 </html>
