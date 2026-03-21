@@ -68,7 +68,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .lead-form input{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:4px;padding:12px 16px;color:var(--cream);font-size:10px;letter-spacing:0.2em;outline:none;transition:border-color 0.2s;}
 .lead-form input:focus{border-color:rgba(245,166,35,0.5);}
 .lead-form button{background:linear-gradient(135deg,rgba(245,166,35,0.18),rgba(90,45,0,0.8));border:1px solid rgba(245,166,35,0.5);border-radius:4px;padding:13px 16px;color:var(--gold);font-size:10px;letter-spacing:0.35em;cursor:pointer;font-family:'Orbitron',monospace;font-weight:700;}
-.skip-btn{background:none;border:none;color:rgba(245,230,200,0.2);font-size:8px;letter-spacing:0.2em;cursor:pointer;text-align:center;padding:4px;}
+.skip-btn{background:none;border:none;color:rgba(245,230,200,0.25);font-size:8px;letter-spacing:0.15em;cursor:pointer;text-align:center;padding:4px;}
+.skip-prominent{margin-bottom:8px;font-size:10px;color:rgba(245,166,35,0.5);letter-spacing:0.12em;padding:8px;}
+.skip-prominent:hover{color:rgba(245,166,35,0.8);}
 
 /* ── PIN ── */
 #screen-pin{align-items:center;justify-content:center;gap:28px;background:radial-gradient(ellipse at 50% 40%,#2a1a08 0%,#0d0a08 70%);}
@@ -117,43 +119,48 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 /* ── ROOM ── */
 #screen-room{background:var(--bg);}
 .room-nav{padding:10px 18px;border-bottom:1px solid rgba(245,166,35,0.12);flex-shrink:0;
-  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
   background:linear-gradient(180deg,var(--bg2),transparent);}
 .rnl{display:flex;align-items:center;gap:10px;}
-.rnr{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.btn{border-radius:4px;padding:6px 10px;cursor:pointer;font-size:7px;letter-spacing:0.15em;
+.rnr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+/* Primary controls ( Mic, Cam, Chat ) */
+.rnr .btn-primary{font-size:9px;padding:7px 12px;}
+/* Secondary controls — grouped */
+.rnr .btn-secondary{font-size:8px;padding:5px 9px;opacity:0.85;}
+.btn{border-radius:4px;cursor:pointer;letter-spacing:0.12em;
   transition:all 0.2s;font-family:'Share Tech Mono',monospace;border:1px solid rgba(245,230,200,0.1);}
-.btn-ghost{background:rgba(245,230,200,0.03);color:rgba(245,230,200,0.4);}
+.btn-ghost{background:rgba(245,230,200,0.03);color:rgba(245,230,200,0.4);padding:6px 10px;font-size:8px;}
 .btn-ghost:hover{border-color:rgba(245,230,200,0.25);color:rgba(245,230,200,0.65);}
 .btn-ctrl{background:rgba(245,230,200,0.02);color:rgba(245,230,200,0.35);}
-.live-dot{font-size:7px;letter-spacing:0.22em;color:rgba(245,230,200,0.2);margin-right:4px;}
+.live-dot{font-size:9px;letter-spacing:0.18em;color:rgba(245,230,200,0.25);margin-right:6px;}
 .live-dot.on{color:#4ade80;}
+.room-ready{font-size:8px;letter-spacing:0.12em;color:rgba(74,222,128,0.8);margin-left:4px;}
 .room-body{flex:1;display:flex;overflow:hidden;}
 
 /* FLOOR */
 .floor{flex:1;position:relative;overflow:hidden;}
 
-/* SEAT CIRCLES — float above furniture */
+/* SEATS — real chair shapes */
 .seat{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:20;
   display:flex;flex-direction:column;align-items:center;user-select:none;}
-.seat-ring{border-radius:50%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:2px;transition:all 0.3s ease;position:relative;}
-.seat-ring.empty{width:50px;height:50px;background:rgba(245,166,35,0.04);
-  border:1.5px dashed rgba(245,166,35,0.22);animation:seatPulse 3.5s ease-in-out infinite;}
-.seat-ring.empty::after{content:'';position:absolute;inset:0;border-radius:50%;
-  animation:ping 2.8s ease-out infinite;border:1px solid rgba(245,166,35,0.14);}
-.seat-ring.taken{width:62px;height:62px;}
-.seat-ring.you{width:70px;height:70px;border:2px solid var(--gold) !important;
-  box-shadow:0 0 24px rgba(245,166,35,0.4),0 0 48px rgba(245,166,35,0.14) !important;animation:none !important;}
-.seat-emoji{font-size:18px;}
-.seat-ring.empty .seat-emoji{font-size:13px;filter:grayscale(1) opacity(0.2);}
-.seat-uname{font-size:7px;letter-spacing:0.08em;text-transform:uppercase;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.seat-sub{margin-top:4px;font-size:7px;letter-spacing:0.18em;white-space:nowrap;}
-.seat-badges{position:absolute;bottom:-4px;display:flex;gap:2px;}
+.seat-chair{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  transition:all 0.3s ease;position:relative;width:52px;height:56px;}
+.seat-chair .chair-svg{position:absolute;bottom:0;left:50%;transform:translateX(-50%);pointer-events:none;}
+.seat-chair .seat-avatar{display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;z-index:2;padding-bottom:4px;}
+.seat-chair.empty{animation:seatPulse 3.5s ease-in-out infinite;}
+.seat-chair.empty .chair-svg{stroke-dasharray:4 3;opacity:0.7;}
+.seat-chair.taken{width:60px;height:64px;}
+.seat-chair.you{width:68px;height:72px;filter:drop-shadow(0 0 12px rgba(245,166,35,0.5));}
+.seat-chair.you .chair-svg{stroke:var(--gold);stroke-width:2.5;stroke-opacity:0.9;}
+.seat-emoji{font-size:20px;}
+.seat-chair.empty .seat-emoji{font-size:18px;filter:grayscale(1) opacity(0.5);}
+.seat-uname{font-size:9px;letter-spacing:0.06em;text-transform:uppercase;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.seat-sub{margin-top:2px;font-size:8px;letter-spacing:0.12em;white-space:nowrap;}
+.seat-badges{position:absolute;bottom:2px;display:flex;gap:2px;z-index:2;}
 .seat-badge{font-size:8px;background:rgba(13,10,8,0.85);border-radius:3px;padding:0 2px;}
-.hand-indicator{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:13px;animation:handBounce 0.6s ease-in-out infinite;}
-.floor-stat{position:absolute;bottom:16px;left:16px;font-size:7px;letter-spacing:0.22em;color:rgba(245,166,35,0.3);}
-.floor-tip{position:absolute;bottom:16px;right:16px;font-size:7px;letter-spacing:0.2em;color:rgba(245,230,200,0.12);}
+.hand-indicator{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:13px;animation:handBounce 0.6s ease-in-out infinite;z-index:3;}
+.floor-stat{position:absolute;bottom:18px;left:18px;font-size:9px;letter-spacing:0.12em;color:rgba(245,166,35,0.45);}
+.floor-tip{position:absolute;bottom:18px;right:18px;font-size:9px;letter-spacing:0.08em;color:rgba(245,230,200,0.25);}
 .lobby-alert{position:absolute;top:14px;left:50%;transform:translateX(-50%);
   background:rgba(224,92,42,0.1);border:1px solid rgba(224,92,42,0.4);border-radius:4px;
   padding:6px 14px;font-size:8px;letter-spacing:0.2em;color:#e05c2a;cursor:pointer;
@@ -163,33 +170,33 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .side-panel{width:0;overflow:hidden;transition:width 0.3s ease;
   background:rgba(13,10,8,0.97);flex-shrink:0;display:flex;flex-direction:column;}
 .side-panel.open{width:272px;}
-.panel-header{padding:11px 14px;font-size:8px;letter-spacing:0.38em;flex-shrink:0;
+.panel-header{padding:12px 14px;font-size:10px;letter-spacing:0.2em;flex-shrink:0;
   display:flex;align-items:center;justify-content:space-between;
   border-bottom:1px solid rgba(245,166,35,0.1);}
-.panel-close{background:none;border:none;color:rgba(245,230,200,0.3);cursor:pointer;font-size:12px;padding:0;}
+.panel-close{background:none;border:none;color:rgba(245,230,200,0.35);cursor:pointer;font-size:14px;padding:0;line-height:1;}
 #videoStrip{border-left:1px solid rgba(245,166,35,0.12);}
 #dailyContainer{flex:1;position:relative;overflow:hidden;}
 #dailyContainer iframe{width:100%;height:100%;border:none;}
 .video-footer{padding:7px 12px;font-size:7px;letter-spacing:0.15em;color:rgba(245,230,200,0.2);border-top:1px solid rgba(245,166,35,0.08);flex-shrink:0;}
 #chatPane{border-left:1px solid rgba(245,166,35,0.12);}
 .chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-height:0;}
-.msg-from{font-size:7px;letter-spacing:0.2em;margin-bottom:3px;}
-.msg-text{font-size:9px;line-height:1.55;word-break:break-word;}
-.chat-bar{padding:8px;display:flex;gap:5px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08);}
-.chat-bar input{flex:1;border-radius:3px;padding:7px 9px;color:var(--cream);font-size:8px;letter-spacing:0.1em;outline:none;font-family:'Share Tech Mono',monospace;}
-.chat-bar button{border-radius:3px;padding:7px 10px;cursor:pointer;font-size:10px;}
+.msg-from{font-size:9px;letter-spacing:0.12em;margin-bottom:4px;}
+.msg-text{font-size:11px;line-height:1.6;word-break:break-word;}
+.chat-bar{padding:10px;display:flex;gap:6px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08);}
+.chat-bar input{flex:1;border-radius:4px;padding:9px 12px;color:var(--cream);font-size:11px;letter-spacing:0.05em;outline:none;font-family:'Share Tech Mono',monospace;}
+.chat-bar button{border-radius:4px;padding:9px 14px;cursor:pointer;font-size:12px;}
 #contentPane{border-left:1px solid rgba(245,166,35,0.12);}
 .content-list{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:7px;}
 .content-item{background:rgba(245,166,35,0.04);border-radius:4px;padding:9px 11px;border:1px solid rgba(245,166,35,0.1);cursor:pointer;transition:all 0.2s;}
 .content-item:hover{border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.08);}
-.ci-title{font-size:9px;letter-spacing:0.12em;color:var(--cream);margin-bottom:2px;}
-.ci-url{font-size:7px;color:rgba(245,230,200,0.25);letter-spacing:0.08em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ci-type{font-size:7px;letter-spacing:0.1em;margin-bottom:3px;}
+.ci-title{font-size:10px;letter-spacing:0.1em;color:var(--cream);margin-bottom:3px;}
+.ci-url{font-size:9px;color:rgba(245,230,200,0.35);letter-spacing:0.06em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ci-type{font-size:8px;letter-spacing:0.08em;margin-bottom:3px;}
 .content-add{padding:9px 11px;border-top:1px solid rgba(245,166,35,0.08);flex-shrink:0;}
 .content-add input{width:100%;background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);border-radius:3px;padding:6px 9px;color:var(--cream);font-size:8px;letter-spacing:0.1em;outline:none;margin-bottom:4px;font-family:'Share Tech Mono',monospace;}
 #notesPane{border-left:1px solid rgba(245,166,35,0.12);}
 .notes-area{flex:1;padding:11px 13px;display:flex;flex-direction:column;}
-.notes-area textarea{flex:1;background:rgba(245,166,35,0.03);border:1px solid rgba(245,166,35,0.12);border-radius:4px;padding:9px 11px;color:var(--cream);font-size:8px;line-height:1.7;outline:none;resize:none;letter-spacing:0.05em;font-family:'Share Tech Mono',monospace;}
+.notes-area textarea{flex:1;background:rgba(245,166,35,0.03);border:1px solid rgba(245,166,35,0.12);border-radius:4px;padding:10px 12px;color:var(--cream);font-size:11px;line-height:1.65;outline:none;resize:none;letter-spacing:0.04em;font-family:'Share Tech Mono',monospace;}
 .notes-footer{padding:7px 13px;display:flex;gap:5px;flex-shrink:0;border-top:1px solid rgba(245,166,35,0.08);}
 .notes-footer button{flex:1;border-radius:3px;padding:7px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;}
 #lobbyPane{border-left:1px solid rgba(224,92,42,0.2);}
@@ -201,8 +208,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .lg-admit{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);border-radius:3px;padding:4px 9px;color:#4ade80;font-size:7px;cursor:pointer;letter-spacing:0.1em;font-family:'Share Tech Mono',monospace;}
 .lg-deny{background:rgba(255,80,60,0.08);border:1px solid rgba(255,80,60,0.25);border-radius:3px;padding:4px 9px;color:rgba(255,100,80,0.7);font-size:7px;cursor:pointer;letter-spacing:0.1em;font-family:'Share Tech Mono',monospace;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
-  background:rgba(26,18,8,0.97);border:1px solid rgba(245,166,35,0.3);
-  border-radius:4px;padding:9px 18px;font-size:8px;letter-spacing:0.2em;
+  background:rgba(26,18,8,0.97);border:1px solid rgba(245,166,35,0.35);
+  border-radius:6px;padding:10px 20px;font-size:10px;letter-spacing:0.12em;
   color:var(--gold);z-index:10000;animation:fadeUp 0.3s ease;pointer-events:none;}
 .toast.green{border-color:rgba(74,222,128,0.35);color:#4ade80;}
 </style>
@@ -228,13 +235,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 <div id="screen-lead" class="screen">
   <div class="logo-glow" style="width:80px;height:80px;"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
   <div class="lead-form">
-    <div class="lead-title">BEFORE YOU ENTER</div>
-    <div class="lead-sub">LET US KNOW WHO YOU ARE</div>
-    <input id="leadName" type="text" placeholder="FULL NAME *" maxlength="50"/>
-    <input id="leadEmail" type="email" placeholder="EMAIL ADDRESS"/>
-    <input id="leadPhone" type="tel" placeholder="PHONE NUMBER"/>
+    <div class="lead-title">QUICK INTRO (OPTIONAL)</div>
+    <div class="lead-sub">Help us follow up — or skip to enter now</div>
+    <button class="skip-btn skip-prominent" id="leadSkip">Skip &amp; enter room</button>
+    <input id="leadName" type="text" placeholder="Name" maxlength="50"/>
+    <input id="leadEmail" type="email" placeholder="Email"/>
+    <input id="leadPhone" type="tel" placeholder="Phone"/>
     <button id="leadSubmit">&#9658; ENTER ROOM</button>
-    <button class="skip-btn" id="leadSkip">SKIP FOR NOW</button>
   </div>
 </div>
 
@@ -258,8 +265,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
   <div style="display:flex;flex-direction:column;align-items:center;gap:16px;">
     <div class="logo-glow" style="width:80px;height:80px;"><img src="logo.png" alt="28FM" onerror="this.style.display='none'"/></div>
     <div class="lobby-spinner"></div>
-    <div class="lobby-title">WAITING FOR HOST</div>
-    <div class="lobby-sub">THE HOST WILL ADMIT YOU SHORTLY</div>
+    <div class="lobby-title">Waiting for host</div>
+    <div class="lobby-sub">The host will admit you shortly</div>
     <div class="lobby-name-badge" id="lobbyNameBadge"></div>
     <button class="btn btn-ghost" id="lobbyCancel" style="margin-top:6px;">CANCEL</button>
   </div>
@@ -292,23 +299,25 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       </div>
     </div>
     <div class="rnr">
-      <div class="live-dot" id="liveDot">&#9675; CHOOSE SEAT</div>
-      <button class="btn btn-ctrl" id="btnMic">&#127908; MIC</button>
-      <button class="btn btn-ctrl" id="btnCam">&#128247; CAM</button>
-      <button class="btn btn-ctrl" id="btnHand">&#9995; HAND</button>
-      <button class="btn btn-ctrl" id="btnContent">&#128203; CONTENT</button>
-      <button class="btn btn-ctrl" id="btnNotes">&#128221; NOTES</button>
-      <button class="btn btn-ctrl" id="btnChat">&#128172; CHAT</button>
-      <button class="btn btn-ctrl" id="btnShare">&#128279; INVITE</button>
-      <button class="btn btn-ctrl" id="btnLobby" style="display:none;">&#128100; LOBBY <span id="lobbyCount"></span></button>
+      <div class="live-dot" id="liveDot">&#9675; CLICK A SEAT</div>
+      <span class="room-ready" id="roomReady" style="display:none;">&#10003; READY</span>
+      <span class="ctrl-divider" style="width:1px;height:16px;background:rgba(245,230,200,0.12);margin:0 2px;"></span>
+      <button class="btn btn-ctrl btn-primary" id="btnMic" title="Microphone">&#127908;</button>
+      <button class="btn btn-ctrl btn-primary" id="btnCam" title="Camera">&#128247;</button>
+      <button class="btn btn-ctrl btn-primary" id="btnChat" title="Chat">&#128172;</button>
+      <button class="btn btn-ctrl btn-secondary" id="btnHand" title="Raise hand">&#9995;</button>
+      <button class="btn btn-ctrl btn-secondary" id="btnShare" title="Copy invite link">&#128279;</button>
+      <button class="btn btn-ctrl btn-secondary" id="btnContent" title="Content">&#128203;</button>
+      <button class="btn btn-ctrl btn-secondary" id="btnNotes" title="Notes">&#128221;</button>
+      <button class="btn btn-ctrl btn-secondary" id="btnLobby" style="display:none;" title="Waiting room">&#128100; <span id="lobbyCount"></span></button>
     </div>
   </nav>
   <div class="room-body">
     <div class="floor" id="floor">
       <!-- SVG room drawn by JS per room -->
       <svg id="roomSVG" style="position:absolute;inset:0;width:100%;height:100%;"></svg>
-      <div class="floor-stat" id="floorStat">0 / 6 SEATS OCCUPIED</div>
-      <div class="floor-tip" id="floorTip">&#9658; CLICK A SEAT TO JOIN</div>
+      <div class="floor-stat" id="floorStat">0 / 6 seats</div>
+      <div class="floor-tip" id="floorTip">Click an empty seat to join</div>
     </div>
     <!-- VIDEO -->
     <div class="side-panel" id="videoStrip">
@@ -321,15 +330,15 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="panel-header"><span id="contentHeader">&#128203; ROOM CONTENT</span><button class="panel-close" id="closeContent">&#10005;</button></div>
       <div class="content-list" id="contentList"></div>
       <div class="content-add">
-        <input id="contentTitle" placeholder="TITLE"/>
-        <input id="contentUrl" placeholder="URL OR NOTE"/>
+        <input id="contentTitle" placeholder="Title"/>
+        <input id="contentUrl" placeholder="URL or note"/>
         <button id="contentAddBtn" style="width:100%;border-radius:3px;padding:6px;cursor:pointer;font-size:7px;letter-spacing:0.2em;font-family:'Share Tech Mono',monospace;">+ ADD ITEM</button>
       </div>
     </div>
     <!-- NOTES -->
     <div class="side-panel" id="notesPane">
       <div class="panel-header"><span id="notesHeader">&#128221; SESSION NOTES</span><button class="panel-close" id="closeNotes">&#10005;</button></div>
-      <div class="notes-area"><textarea id="notesTextarea" placeholder="TYPE SESSION NOTES HERE...&#10;&#10;Auto-saves every 10 seconds."></textarea></div>
+      <div class="notes-area"><textarea id="notesTextarea" placeholder="Type session notes...&#10;Auto-saves every 10 seconds."></textarea></div>
       <div class="notes-footer">
         <button id="notesSave">&#128190; SAVE</button>
         <button id="notesCopy">&#128203; COPY</button>
@@ -340,7 +349,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
       <div class="panel-header"><span id="chatHeader">&#128172; ROOM CHAT</span><button class="panel-close" id="closeChat">&#10005;</button></div>
       <div class="chat-msgs" id="chatMsgs"></div>
       <div class="chat-bar">
-        <input id="chatInput" type="text" placeholder="TYPE MESSAGE..." maxlength="200" autocomplete="off"/>
+        <input id="chatInput" type="text" placeholder="Type a message…" maxlength="200" autocomplete="off"/>
         <button id="chatSend">&#9658;</button>
       </div>
     </div>
@@ -368,31 +377,31 @@ const ROOMS=[
   {id:"ops",        name:"Ops Command",       icon:"🤖",desc:"CORA / Agent Briefings",         color:"#34d399",requireLead:false,requireLobby:false},
 ];
 
-// ── SEAT POSITIONS per room (% of floor) ─────────────────────────────────
+// ── SEAT POSITIONS per room (% of floor) — aligned with furniture ────────
 const ROOM_SEATS={
   strategy:[
-    {id:1,x:50,y:22,label:"HOST"},
-    {id:2,x:22,y:42,label:"SEAT 2"},{id:3,x:78,y:42,label:"SEAT 3"},
-    {id:4,x:22,y:68,label:"SEAT 4"},{id:5,x:78,y:68,label:"SEAT 5"},
-    {id:6,x:50,y:84,label:"SEAT 6"},
+    {id:1,x:50,y:18,label:"HOST"},
+    {id:2,x:22,y:34,label:"SEAT 2"},{id:3,x:78,y:34,label:"SEAT 3"},
+    {id:4,x:22,y:66,label:"SEAT 4"},{id:5,x:78,y:66,label:"SEAT 5"},
+    {id:6,x:50,y:82,label:"SEAT 6"},
   ],
   recruiting:[
-    {id:1,x:50,y:28,label:"ADVISOR"},
-    {id:2,x:28,y:52,label:"RECRUIT"},{id:3,x:72,y:52,label:"PARENT"},
-    {id:4,x:35,y:76,label:"SEAT 4"},{id:5,x:65,y:76,label:"SEAT 5"},
+    {id:1,x:50,y:26,label:"ADVISOR"},
+    {id:2,x:30,y:58,label:"RECRUIT"},{id:3,x:70,y:58,label:"PARENT"},
+    {id:4,x:32,y:78,label:"SEAT 4"},{id:5,x:68,y:78,label:"SEAT 5"},
     {id:6,x:50,y:88,label:"SEAT 6"},
   ],
   coaching:[
-    {id:1,x:50,y:18,label:"COACH"},
-    {id:2,x:20,y:44,label:"PLAYER 1"},{id:3,x:80,y:44,label:"PLAYER 2"},
-    {id:4,x:20,y:70,label:"PLAYER 3"},{id:5,x:80,y:70,label:"PLAYER 4"},
+    {id:1,x:50,y:22,label:"COACH"},
+    {id:2,x:22,y:48,label:"PLAYER 1"},{id:3,x:78,y:48,label:"PLAYER 2"},
+    {id:4,x:22,y:72,label:"PLAYER 3"},{id:5,x:78,y:72,label:"PLAYER 4"},
     {id:6,x:50,y:86,label:"PLAYER 5"},
   ],
   ops:[
-    {id:1,x:50,y:20,label:"LEAD"},
-    {id:2,x:20,y:42,label:"DEV"},{id:3,x:80,y:42,label:"OPS"},
-    {id:4,x:20,y:68,label:"AGENT"},{id:5,x:80,y:68,label:"AGENT"},
-    {id:6,x:50,y:84,label:"CORA"},
+    {id:1,x:50,y:22,label:"LEAD"},
+    {id:2,x:22,y:48,label:"DEV"},{id:3,x:78,y:48,label:"OPS"},
+    {id:4,x:22,y:72,label:"AGENT"},{id:5,x:78,y:72,label:"AGENT"},
+    {id:6,x:50,y:86,label:"CORA"},
   ],
 };
 
@@ -452,25 +461,18 @@ function drawRoom(roomId,color){
 
   if(roomId==="strategy"){
     // ── EXECUTIVE BOARDROOM
-    // Large oval conference table
-    const tx=W/2, ty=H/2, tw=W*0.45, th=H*0.28;
-    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="${dim('#3d2200',0.9)}" stroke="${dim(c,0.5)}" stroke-width="2"/>`;
-    // Table surface sheen
-    s+=`<ellipse cx="${tx}" cy="${ty-th*0.15}" rx="${tw*0.7}" ry="${th*0.3}" fill="${dim('#ffffff',0.04)}"/>`;
-    // Table edge banding
-    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="none" stroke="${dim(c,0.3)}" stroke-width="4"/>`;
-    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw-6}" ry="${th-6}" fill="none" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
-    // Logo on table
-    s+=`<text x="${tx}" y="${ty+6}" text-anchor="middle" font-size="11" fill="${dim(c,0.35)}" font-family="'Orbitron',monospace" letter-spacing="3">28FM</text>`;
-    // Leather chairs around table (decorative, behind seats)
-    const chairAngles=[0,60,120,180,240,300];
-    chairAngles.forEach(deg=>{
-      const rad=deg*Math.PI/180;
-      const cx=tx+Math.cos(rad)*(tw+28);
-      const cy=ty+Math.sin(rad)*(th+22);
-      s+=`<ellipse cx="${cx}" cy="${cy}" rx="18" ry="14" fill="${dim('#2a1500',0.95)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
-      s+=`<ellipse cx="${cx}" cy="${cy-3}" rx="12" ry="8" fill="${dim('#3d2200',0.8)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
-    });
+    const tx=W/2, ty=H/2, tw=W*0.42, th=H*0.26;
+    // Table base — rich wood gradient
+    s+=`<defs><linearGradient id="strategyTable" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4a2e0a"/><stop offset="40%" stop-color="#2a1808"/><stop offset="100%" stop-color="#1a0f04"/></linearGradient>
+    <linearGradient id="strategyTableEdge" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${c}"/><stop offset="100%" stop-color="#8B4513"/></linearGradient></defs>`;
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="url(#strategyTable)" stroke="url(#strategyTableEdge)" stroke-width="3"/>`;
+    // Inner wood grain / surface
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw-4}" ry="${th-4}" fill="${dim('#3d2200',0.85)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    // Glass/gloss sheen
+    s+=`<ellipse cx="${tx}" cy="${ty-th*0.2}" rx="${tw*0.65}" ry="${th*0.35}" fill="${dim('#ffffff',0.06)}"/>`;
+    // Subtle edge highlight
+    s+=`<ellipse cx="${tx}" cy="${ty}" rx="${tw}" ry="${th}" fill="none" stroke="${dim(c,0.35)}" stroke-width="1"/>`;
+    s+=`<text x="${tx}" y="${ty+6}" text-anchor="middle" font-size="11" fill="${dim(c,0.4)}" font-family="'Orbitron',monospace" letter-spacing="3">28FM</text>`;
     // Credenza on back wall
     s+=`<rect x="${W*0.1}" y="${H*0.08}" width="${W*0.8}" height="${H*0.1}" rx="4" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
     s+=`<rect x="${W*0.12}" y="${H*0.09}" width="${W*0.36}" height="${H*0.07}" rx="2" fill="${dim('#1a0e00',0.8)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
@@ -493,17 +495,14 @@ function drawRoom(roomId,color){
 
   } else if(roomId==="recruiting"){
     // ── ATHLETIC MEETING ROOM
-    // Main desk - recruiter side
-    s+=`<rect x="${W*0.25}" y="${H*0.32}" width="${W*0.5}" height="${H*0.14}" rx="6" fill="${dim('#3d2200',0.92)}" stroke="${dim(c,0.45)}" stroke-width="2"/>`;
-    s+=`<rect x="${W*0.27}" y="${H*0.33}" width="${W*0.46}" height="${H*0.11}" rx="4" fill="${dim('#2a1500',0.8)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
-    // Laptop on desk
-    s+=`<rect x="${W*0.41}" y="${H*0.34}" width="${W*0.08}" height="${H*0.06}" rx="2" fill="${dim('#111',0.95)}" stroke="${dim(c,0.35)}" stroke-width="1"/>`;
-    s+=`<rect x="${W*0.4}" y="${H*0.395}" width="${W*0.1}" height="${H*0.015}" rx="1" fill="${dim('#222',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
-    // Screen glow
-    s+=`<rect x="${W*0.415}" y="${H*0.345}" width="${W*0.07}" height="${H*0.048}" rx="1" fill="${dim(c,0.12)}"/>`;
-    // Files / folders on desk
-    s+=`<rect x="${W*0.53}" y="${H*0.34}" width="${W*0.06}" height="${H*0.055}" rx="1" fill="${dim('#8B4513',0.7)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
-    s+=`<rect x="${W*0.535}" y="${H*0.335}" width="${W*0.05}" height="${H*0.005}" rx="0.5" fill="${dim(c,0.4)}"/>`;
+    s+=`<defs><linearGradient id="recruitDesk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3d2510"/><stop offset="50%" stop-color="#2a1808"/><stop offset="100%" stop-color="#1a0f04"/></linearGradient></defs>`;
+    s+=`<rect x="${W*0.24}" y="${H*0.30}" width="${W*0.52}" height="${H*0.16}" rx="8" fill="url(#recruitDesk)" stroke="${dim(c,0.4)}" stroke-width="2"/>`;
+    s+=`<rect x="${W*0.26}" y="${H*0.32}" width="${W*0.48}" height="${H*0.12}" rx="5" fill="${dim('#2a1500',0.85)}" stroke="${dim(c,0.18)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.41}" y="${H*0.335}" width="${W*0.08}" height="${H*0.055}" rx="2" fill="${dim('#111',0.95)}" stroke="${dim(c,0.35)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.398}" y="${H*0.385}" width="${W*0.104}" height="${H*0.014}" rx="1" fill="${dim('#222',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.418}" y="${H*0.34}" width="${W*0.064}" height="${H*0.044}" rx="1" fill="${dim(c,0.12)}"/>`;
+    s+=`<rect x="${W*0.53}" y="${H*0.335}" width="${W*0.06}" height="${H*0.05}" rx="1" fill="${dim('#8B4513',0.7)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
+    s+=`<rect x="${W*0.535}" y="${H*0.33}" width="${W*0.05}" height="${H*0.004}" rx="0.5" fill="${dim(c,0.4)}"/>`;
     // Trophy shelf on wall
     s+=`<rect x="${W*0.05}" y="${H*0.08}" width="${W*0.9}" height="${H*0.11}" rx="3" fill="${dim('#2a1500',0.85)}" stroke="${dim(c,0.2)}" stroke-width="1.5"/>`;
     // Trophies
@@ -514,12 +513,6 @@ function drawRoom(roomId,color){
     // Game film board on far wall
     s+=`<rect x="${W*0.2}" y="${H*0.06}" width="${W*0.6}" height="8" rx="2" fill="${dim(c,0.35)}"/>`;
     s+=`<text x="${W*0.5}" y="${H*0.075}" text-anchor="middle" font-size="7" fill="${dim(c,0.8)}" font-family="'Share Tech Mono',monospace" letter-spacing="2">RECRUITABLE SUITE</text>`;
-    // Guest chairs (recruit side)
-    [[W*0.3,H*0.62],[W*0.5,H*0.65],[W*0.7,H*0.62]].forEach(([cx2,cy2])=>{
-      s+=`<rect x="${cx2-16}" y="${cy2-10}" width="32" height="26" rx="4" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1.5"/>`;
-      s+=`<rect x="${cx2-14}" y="${cy2-8}" width="28" height="16" rx="3" fill="${dim('#3d2200',0.7)}"/>`;
-      s+=`<rect x="${cx2-6}" y="${cy2-22}" width="12" height="14" rx="2" fill="${dim('#2a1500',0.9)}" stroke="${dim(c,0.2)}" stroke-width="1"/>`;
-    });
     // Logo on wall
     s+=`<circle cx="${W*0.88}" cy="${H*0.75}" r="28" fill="${dim(c,0.06)}" stroke="${dim(c,0.18)}" stroke-width="1"/>`;
     s+=`<text x="${W*0.88}" y="${H*0.75+4}" text-anchor="middle" font-size="9" fill="${dim(c,0.4)}" font-family="'Orbitron',monospace">28FM</text>`;
@@ -553,17 +546,16 @@ function drawRoom(roomId,color){
       s+=`<rect x="${W*0.1+mi*W*0.05}" y="${H*0.292}" width="${W*0.035}" height="${H*0.018}" rx="2" fill="${dim(mc,0.8)}"/>`;
     });
 
-    // Round seminar table
-    const rtx=W*0.5, rty=H*0.62, rtr=H*0.17;
-    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.5}" ry="${rtr}" fill="${dim('#3d2200',0.9)}" stroke="${dim(c,0.45)}" stroke-width="2"/>`;
-    s+=`<ellipse cx="${rtx}" cy="${rty-rtr*0.12}" rx="${rtr*1.1}" ry="${rtr*0.55}" fill="${dim('#ffffff',0.035)}"/>`;
-    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.5}" ry="${rtr}" fill="none" stroke="${dim(c,0.25)}" stroke-width="3"/>`;
-    // Notebooks on table
-    [[rtx-30,rty-8],[rtx,rty-12],[rtx+30,rty-8]].forEach(([nx,ny])=>{
-      s+=`<rect x="${nx-10}" y="${ny-7}" width="20" height="14" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.25)}" stroke-width="1"/>`;
-      s+=`<line x1="${nx-7}" y1="${ny-4}" x2="${nx+7}" y2="${ny-4}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
-      s+=`<line x1="${nx-7}" y1="${ny}" x2="${nx+7}" y2="${ny}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
-      s+=`<line x1="${nx-7}" y1="${ny+4}" x2="${nx+7}" y2="${ny+4}" stroke="${dim(c,0.2)}" stroke-width="0.5"/>`;
+    // Round seminar table — centered for seat alignment
+    const rtx=W*0.5, rty=H*0.58, rtr=H*0.15;
+    s+=`<defs><radialGradient id="coachTable" cx="40%" cy="30%"><stop offset="0%" stop-color="#4a2e0a"/><stop offset="100%" stop-color="#2a1808"/></radialGradient></defs>`;
+    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.6}" ry="${rtr*1.1}" fill="url(#coachTable)" stroke="${dim(c,0.4)}" stroke-width="2"/>`;
+    s+=`<ellipse cx="${rtx}" cy="${rty-rtr*0.15}" rx="${rtr*1.2}" ry="${rtr*0.6}" fill="${dim('#ffffff',0.04)}"/>`;
+    s+=`<ellipse cx="${rtx}" cy="${rty}" rx="${rtr*1.6}" ry="${rtr*1.1}" fill="none" stroke="${dim(c,0.22)}" stroke-width="2"/>`;
+    [[rtx-28,rty-6],[rtx,rty-10],[rtx+28,rty-6]].forEach(([nx,ny])=>{
+      s+=`<rect x="${nx-9}" y="${ny-6}" width="18" height="12" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.22)}" stroke-width="1"/>`;
+      s+=`<line x1="${nx-6}" y1="${ny-3}" x2="${nx+6}" y2="${ny-3}" stroke="${dim(c,0.18)}" stroke-width="0.5"/>`;
+      s+=`<line x1="${nx-6}" y1="${ny+1}" x2="${nx+6}" y2="${ny+1}" stroke="${dim(c,0.18)}" stroke-width="0.5"/>`;
     });
 
     // Corner storage cabinet
@@ -574,23 +566,19 @@ function drawRoom(roomId,color){
 
   } else if(roomId==="ops"){
     // ── OPS COMMAND CENTER
-    // Main operations console / L-shaped desk
-    // Long desk
-    s+=`<rect x="${W*0.12}" y="${H*0.35}" width="${W*0.76}" height="${H*0.12}" rx="4" fill="${dim('#1a2a18',0.95)}" stroke="${dim(c,0.5)}" stroke-width="2"/>`;
-    s+=`<rect x="${W*0.14}" y="${H*0.36}" width="${W*0.72}" height="${H*0.09}" rx="3" fill="${dim('#0d1a0d',0.85)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
-    // Multiple monitors
-    [[W*0.22,H*0.36],[W*0.38,H*0.36],[W*0.5,H*0.34],[W*0.62,H*0.36],[W*0.78,H*0.36]].forEach(([mx,my],mi)=>{
-      const mw=W*0.1, mh=H*0.13;
+    s+=`<defs><linearGradient id="opsDesk" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0d1a0d"/><stop offset="50%" stop-color="#1a2a18"/><stop offset="100%" stop-color="#0d1a0d"/></linearGradient></defs>`;
+    s+=`<rect x="${W*0.10}" y="${H*0.38}" width="${W*0.80}" height="${H*0.14}" rx="6" fill="url(#opsDesk)" stroke="${dim(c,0.45)}" stroke-width="2"/>`;
+    s+=`<rect x="${W*0.12}" y="${H*0.40}" width="${W*0.76}" height="${H*0.10}" rx="4" fill="${dim('#0a1510',0.9)}" stroke="${dim(c,0.18)}" stroke-width="1"/>`;
+    [[W*0.22,H*0.42],[W*0.38,H*0.42],[W*0.5,H*0.40],[W*0.62,H*0.42],[W*0.78,H*0.42]].forEach(([mx,my],mi)=>{
+      const mw=W*0.095, mh=H*0.12;
       const screenColors=["#f5a623","#34d399","#f5a623","#c084fc","#34d399"];
-      s+=`<rect x="${mx-mw/2}" y="${my-mh}" width="${mw}" height="${mh}" rx="2" fill="${dim('#111',0.97)}" stroke="${dim(screenColors[mi],0.4)}" stroke-width="1.5"/>`;
-      s+=`<rect x="${mx-mw/2+2}" y="${my-mh+2}" width="${mw-4}" height="${mh-4}" rx="1" fill="${dim(screenColors[mi],0.08)}"/>`;
-      // Screen content lines
+      s+=`<rect x="${mx-mw/2}" y="${my-mh}" width="${mw}" height="${mh}" rx="2" fill="${dim('#0a0a0a',0.98)}" stroke="${dim(screenColors[mi],0.35)}" stroke-width="1.5"/>`;
+      s+=`<rect x="${mx-mw/2+3}" y="${my-mh+3}" width="${mw-6}" height="${mh-6}" rx="1" fill="${dim(screenColors[mi],0.1)}"/>`;
       for(let li=0;li<4;li++){
-        s+=`<line x1="${mx-mw/2+6}" y1="${my-mh+8+li*10}" x2="${mx-mw/2+mw-6}" y2="${my-mh+8+li*10}" stroke="${dim(screenColors[mi],0.25)}" stroke-width="1"/>`;
+        s+=`<line x1="${mx-mw/2+8}" y1="${my-mh+10+li*12}" x2="${mx-mw/2+mw-8}" y2="${my-mh+10+li*12}" stroke="${dim(screenColors[mi],0.2)}" stroke-width="1"/>`;
       }
-      // Monitor stand
-      s+=`<rect x="${mx-5}" y="${my}" width="10" height="${H*0.04}" rx="1" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.15)}" stroke-width="1"/>`;
-      s+=`<rect x="${mx-12}" y="${my+H*0.04}" width="24" height="4" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+      s+=`<rect x="${mx-5}" y="${my}" width="10" height="${H*0.035}" rx="1" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.12)}" stroke-width="1"/>`;
+      s+=`<rect x="${mx-14}" y="${my+H*0.035}" width="28" height="5" rx="2" fill="${dim('#1a1208',0.9)}" stroke="${dim(c,0.1)}" stroke-width="1"/>`;
     });
     // Server rack on back wall
     s+=`<rect x="${W*0.02}" y="${H*0.08}" width="${W*0.1}" height="${H*0.75}" rx="4" fill="${dim('#0d1a0d',0.95)}" stroke="${dim(c,0.35)}" stroke-width="2"/>`;
@@ -598,9 +586,8 @@ function drawRoom(roomId,color){
       s+=`<rect x="${W*0.025}" y="${H*0.1+ri*H*0.056}" width="${W*0.09}" height="${H*0.045}" rx="1" fill="${dim('#111',0.9)}" stroke="${dim(c,0.15)}" stroke-width="0.5"/>`;
       s+=`<circle cx="${W*0.095}" cy="${H*0.122+ri*H*0.056}" r="3" fill="${dim(ri%3===0?'#34d399':'#f5a623',0.7)}"/>`;
     }
-    // Cable management lines
     for(let ci=0;ci<6;ci++){
-      s+=`<line x1="${W*0.12}" y1="${H*0.35}" x2="${W*0.12}" y2="${H*0.1+ci*H*0.1}" stroke="${dim(c,0.08)}" stroke-width="1" stroke-dasharray="2,4"/>`;
+      s+=`<line x1="${W*0.12}" y1="${H*0.38}" x2="${W*0.12}" y2="${H*0.1+ci*H*0.1}" stroke="${dim(c,0.08)}" stroke-width="1" stroke-dasharray="2,4"/>`;
     }
     // CORA display — large center screen on wall
     s+=`<rect x="${W*0.25}" y="${H*0.05}" width="${W*0.5}" height="${H*0.22}" rx="4" fill="${dim('#0a1a0a',0.97)}" stroke="${dim(c,0.55)}" stroke-width="2"/>`;
@@ -718,7 +705,7 @@ async function proceedToLobbyOrRoom(r){
 function startLobbyWatch(r){
   const ch=sb.channel("lw:"+SID).on("postgres_changes",{event:"UPDATE",schema:"public",table:"room_lobby",filter:"session_id=eq."+SID},p=>{
     if(p.new.status==="admitted"){sb.removeChannel(ch);isHost=false;enterRoom(r);}
-    if(p.new.status==="denied"){sb.removeChannel(ch);show("hub");toast("ACCESS DENIED BY HOST");}
+    if(p.new.status==="denied"){sb.removeChannel(ch);show("hub");toast("Access denied by host");}
   }).subscribe();
   document.getElementById("lobbyCancel").onclick=async()=>{sb.removeChannel(ch);await sb.from("room_lobby").delete().eq("session_id",SID);show("hub");};
 }
@@ -746,6 +733,8 @@ async function enterRoom(r){
   document.getElementById("rName").style.color=c;
   document.getElementById("rDesc").textContent=r.desc;
   ["btnMic","btnCam","btnHand","btnContent","btnNotes","btnChat","btnShare"].forEach(id=>styleBtn(document.getElementById(id),false,c));
+  document.getElementById("btnMic").textContent=micOn?"🎤 On":"🎤 Mic";
+  document.getElementById("btnCam").textContent=camOn?"📷 On":"📷 Cam";
   document.getElementById("videoHeader").style.color=c;
   document.getElementById("contentHeader").style.color=c;
   document.getElementById("notesHeader").style.color=c;
@@ -862,8 +851,8 @@ async function saveNotes(){
   const today=new Date().toISOString().split("T")[0];
   await sb.from("room_notes").upsert({room_id:room.id,session_date:today,content,updated_by:myName,updated_at:new Date().toISOString()},{onConflict:"room_id,session_date"});
 }
-document.getElementById("notesSave").onclick=async()=>{await saveNotes();toast("NOTES SAVED","green");};
-document.getElementById("notesCopy").onclick=()=>{navigator.clipboard.writeText(document.getElementById("notesTextarea").value).then(()=>toast("NOTES COPIED","green"));};
+document.getElementById("notesSave").onclick=async()=>{await saveNotes();toast("Notes saved","green");};
+document.getElementById("notesCopy").onclick=()=>{navigator.clipboard.writeText(document.getElementById("notesTextarea").value).then(()=>toast("Notes copied","green"));};
 
 // ── LOBBY ─────────────────────────────────────────────────────────────────
 async function loadLobby(rid){
@@ -876,7 +865,7 @@ function subscribeLobby(rid){
     if(p.eventType==="DELETE"||p.new?.status!=="waiting")delete lobbyGuests[p.old?.session_id||p.new?.session_id];
     else lobbyGuests[p.new.session_id]=p.new;
     renderLobby();const cnt=Object.keys(lobbyGuests).length;
-    if(cnt>0)toast("⚡ "+cnt+" GUEST"+(cnt>1?"S":"")+" WAITING");
+    if(cnt>0)toast("⚡ "+(cnt===1?"1 guest":""+cnt+" guests")+" waiting");
   }).subscribe();
 }
 function renderLobby(){
@@ -886,10 +875,10 @@ function renderLobby(){
   const existing=document.getElementById("lobbyAlertEl");if(existing)existing.remove();
   if(guests.length>0){
     const alert=document.createElement("div");alert.className="lobby-alert";alert.id="lobbyAlertEl";
-    alert.textContent="⚡ "+guests.length+" GUEST"+(guests.length>1?"S":"")+" WAITING → VIEW LOBBY";
+    alert.textContent="⚡ "+(guests.length===1?"1 guest":""+guests.length+" guests")+" waiting — view lobby";
     alert.onclick=()=>togglePanel("lobbyPane");document.getElementById("floor").appendChild(alert);
   }
-  if(guests.length===0){const e=document.createElement("div");e.style.cssText="padding:20px;text-align:center;font-size:8px;letter-spacing:0.2em;color:rgba(245,230,200,0.2);";e.textContent="NO GUESTS WAITING";list.appendChild(e);return;}
+  if(guests.length===0){const e=document.createElement("div");e.style.cssText="padding:20px;text-align:center;font-size:10px;letter-spacing:0.12em;color:rgba(245,230,200,0.25);";e.textContent="No guests waiting";list.appendChild(e);return;}
   guests.forEach(g=>{
     const d=document.createElement("div");d.className="lobby-guest";
     const waited=Math.round((Date.now()-new Date(g.requested_at).getTime())/1000);
@@ -906,21 +895,24 @@ function renderSeats(){
   if(!room)return;
   const c=room.color;const seats=ROOM_SEATS[room.id]||ROOM_SEATS.strategy;
   const cnt=Object.keys(occupants).length;
-  document.getElementById("floorStat").textContent=cnt+" / "+seats.length+" SEATS OCCUPIED";
+  document.getElementById("floorStat").textContent=cnt+" / "+seats.length+" seats";
   document.getElementById("floorTip").style.display=mySeat?"none":"block";
+  const rd=document.getElementById("roomReady");if(rd)rd.style.display=mySeat?"inline":"none";
   seats.forEach(s=>{
     const occ=occupants[s.id];const isYou=mySeat===s.id;
     const div=document.createElement("div");div.className="seat";div.style.cssText="left:"+s.x+"%;top:"+s.y+"%;";
-    let rc="seat-ring ",rs="";
-    if(isYou){rc+="you taken";rs="background:radial-gradient(circle at 35% 35%,"+c+"28,#0d0a08);";}
-    else if(occ){rc+="taken";rs="background:radial-gradient(circle at 35% 35%,"+c+"18,#0d0a08);border:2px solid "+c+"55;box-shadow:0 0 16px "+c+"22;";}
-    else rc+="empty";
+    let rc="seat-chair ";
+    if(isYou)rc+="you taken";else if(occ)rc+="taken";else rc+="empty";
+    const w=isYou?68:occ?60:52;
     const hasHand=occ&&reactions[occ.session_id]&&reactions[occ.session_id].reaction==="hand";
     const badges=[];if(occ&&occ.mic_on)badges.push("🎤");if(occ&&occ.cam_on)badges.push("📷");
-    div.innerHTML=(hasHand?"<div class='hand-indicator'>✋</div>":"")+"<div class='"+rc+"' style='"+rs+"'><span class='seat-emoji'>"+(occ?occ.avatar:"➕")+"</span>"+(occ?"<span class='seat-uname' style='color:"+(isYou?c:"rgba(245,230,200,0.55)")+"'>"+(isYou?"● YOU":occ.user_name.split(" ")[0])+"</span>":"")+( badges.length?"<div class='seat-badges'>"+badges.map(b=>"<span class='seat-badge'>"+b+"</span>").join("")+"</div>":"")+"</div>"+(isYou?"<div class='seat-sub' style='color:"+c+";text-shadow:0 0 8px "+c+"'>▸ SEATED</div>":!occ?"<div class='seat-sub' style='color:"+c+"44'>"+s.label+"</div>":"");
+    const emptyLabel=!occ?"Click to sit":"";
+    const strokeCol=isYou?"#f5a623":occ?c:c;
+    const chairSvgStr=`<svg class="chair-svg" viewBox="0 0 48 52" width="${w}" height="${Math.round(w*1.08)}" fill="none" stroke="${strokeCol}" stroke-width="${isYou?2.5:1.5}" stroke-opacity="${occ||isYou?0.7:0.4}"><ellipse cx="24" cy="36" rx="16" ry="10" fill="rgba(45,25,5,0.5)"/><rect x="16" y="12" width="16" height="14" rx="3" fill="rgba(40,22,5,0.6)"/><ellipse cx="24" cy="36" rx="16" ry="10"/><rect x="16" y="12" width="16" height="14" rx="3"/><path d="M20 26h16v3H20z" fill="rgba(25,15,5,0.7)"/></svg>`;
+    div.innerHTML=(hasHand?"<div class='hand-indicator'>✋</div>":"")+"<div class='"+rc+"'>"+chairSvgStr+"<div class='seat-avatar'>"+"<span class='seat-emoji'>"+(occ?occ.avatar:"🪑")+"</span>"+(occ?"<span class='seat-uname' style='color:"+(isYou?c:"rgba(245,230,200,0.55)")+"'>"+(isYou?"● You":occ.user_name.split(" ")[0])+"</span>":"")+(badges.length?"<div class='seat-badges'>"+badges.map(b=>"<span class='seat-badge'>"+b+"</span>").join("")+"</div>":"")+"</div></div>"+(isYou?"<div class='seat-sub' style='color:"+c+";text-shadow:0 0 8px "+c+"'>Seated</div>":!occ?"<div class='seat-sub' style='color:"+c+"44'>"+emptyLabel+"</div>":"");
     div.onclick=()=>clickSeat(s.id);fl.appendChild(div);
   });
-  const ld=document.getElementById("liveDot");ld.textContent=mySeat?"● LIVE":"○ CHOOSE SEAT";ld.className="live-dot"+(mySeat?" on":"");
+  const ld=document.getElementById("liveDot");ld.textContent=mySeat?"● You're in":"○ Click a seat";ld.className="live-dot"+(mySeat?" on":"");
 }
 
 async function clickSeat(sid){
@@ -947,7 +939,7 @@ async function startVideo(){
 async function stopVideo(){if(callFrame){await callFrame.leave();callFrame.destroy();callFrame=null;}document.getElementById("dailyContainer").innerHTML="";}
 
 // ── SHARE ─────────────────────────────────────────────────────────────────
-document.getElementById("btnShare").onclick=()=>{if(!room)return;const url=window.location.origin+"?room="+room.id;navigator.clipboard.writeText(url).then(()=>toast("INVITE LINK COPIED","green"));};
+document.getElementById("btnShare").onclick=()=>{if(!room)return;const url=window.location.origin+"?room="+room.id;navigator.clipboard.writeText(url).then(()=>toast("Invite link copied","green"));};
 
 // ── LEAVE ─────────────────────────────────────────────────────────────────
 document.getElementById("btnLeave").onclick=async()=>{
@@ -963,7 +955,7 @@ document.getElementById("btnContent").onclick=()=>togglePanel("contentPane");
 document.getElementById("btnNotes").onclick=()=>togglePanel("notesPane");
 document.getElementById("btnChat").onclick=()=>togglePanel("chatPane");
 document.getElementById("btnLobby").onclick=()=>togglePanel("lobbyPane");
-document.getElementById("closeVideo").onclick=()=>{closePanel("videoStrip");camOn=false;document.getElementById("btnCam").textContent="📷 CAM";styleBtn(document.getElementById("btnCam"),false,room?room.color:"#f5a623");stopVideo();};
+document.getElementById("closeVideo").onclick=()=>{closePanel("videoStrip");camOn=false;document.getElementById("btnCam").textContent="📷 Cam";styleBtn(document.getElementById("btnCam"),false,room?room.color:"#f5a623");stopVideo();};
 document.getElementById("closeContent").onclick=()=>closePanel("contentPane");
 document.getElementById("closeNotes").onclick=()=>{saveNotes();closePanel("notesPane");};
 document.getElementById("closeChat").onclick=()=>closePanel("chatPane");
