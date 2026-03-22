@@ -1,0 +1,165 @@
+{
+  "name": "28FM VAPI Call Log → Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "28fm-vapi-call-log",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "28fm-vapi-call-log"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ── VAPI end-of-call-report payload mapping ──────────────────────────────\n// VAPI sends: { message: { type, call, transcript, summary, recordingUrl,\n//   stereoRecordingUrl, durationSeconds, analysis: { summary, structuredData,\n//   successEvaluation } } }\n\nconst body = $input.first().json.body ?? $input.first().json;\n\n// Only process end-of-call-report events; ignore status-update pings etc.\nconst msgType = body?.message?.type ?? body?.type ?? '';\nif (msgType !== 'end-of-call-report') {\n  return [{ json: { __skip: true, type: msgType } }];\n}\n\nconst msg  = body.message ?? body;\nconst call = msg.call ?? {};\nconst analysis = msg.analysis ?? {};\nconst customer = call.customer ?? {};\nconst assistant = call.assistant ?? {};\n\n// ── Auto-generate Row ID ──────────────────────────────────────────────────\n// Format: CALL-<epoch-ms>-<4-char hex>  e.g. CALL-1742601234567-A3F1\nconst now   = new Date();\nconst rowId = 'CALL-' + now.getTime() + '-' +\n  Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0');\n\n// ── Timestamps ───────────────────────────────────────────────────────────\n// Logged-at = moment this webhook was received (always present)\nconst loggedAt = now.toISOString();\n\n// Call start/end come from VAPI (ISO strings)\nconst callStartedAt = call.startedAt ?? call.createdAt ?? loggedAt;\nconst callEndedAt   = call.endedAt   ?? loggedAt;\n\n// Human-readable date + time from call start\nconst startDate = new Date(callStartedAt);\nconst dateFormatted = startDate.toLocaleDateString('en-US', { year:'numeric', month:'2-digit', day:'2-digit' });\nconst timeFormatted = startDate.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });\n\n// Duration: prefer VAPI's durationSeconds, fall back to computed diff\nlet durationSec = msg.durationSeconds ?? null;\nif (durationSec === null && call.startedAt && call.endedAt) {\n  durationSec = Math.round((new Date(call.endedAt) - new Date(call.startedAt)) / 1000);\n}\nconst durationFormatted = durationSec !== null\n  ? Math.floor(durationSec / 60) + ':' + String(durationSec % 60).padStart(2, '0')\n  : '';\n\n// ── Field extraction ─────────────────────────────────────────────────────\nconst callerPhone  = customer.number ?? customer.phoneNumber ?? '';\nconst callerName   = customer.name   ?? '';\nconst callType     = call.type       ?? '';\nconst callId       = call.id         ?? '';\nconst assistantName = assistant.name ?? call.assistantId ?? '';\nconst transcript   = msg.transcript  ?? '';\nconst summary      = msg.summary     ?? analysis.summary ?? '';\nconst recordingUrl = msg.recordingUrl ?? msg.stereoRecordingUrl ?? '';\nconst successEval  = analysis.successEvaluation ?? '';\n\n// structured data from VAPI analysis (flatten to JSON string if object)\nlet structuredData = analysis.structuredData ?? '';\nif (typeof structuredData === 'object') {\n  structuredData = JSON.stringify(structuredData);\n}\n\nreturn [{\n  json: {\n    row_id:          rowId,\n    logged_at:       loggedAt,\n    date:            dateFormatted,\n    time:            timeFormatted,\n    call_id:         callId,\n    call_type:       callType,\n    caller_phone:    callerPhone,\n    caller_name:     callerName,\n    assistant_name:  assistantName,\n    call_started_at: callStartedAt,\n    call_ended_at:   callEndedAt,\n    duration:        durationFormatted,\n    duration_sec:    durationSec ?? '',\n    summary:         summary,\n    transcript:      transcript,\n    recording_url:   recordingUrl,\n    success_eval:    successEval,\n    structured_data: structuredData\n  }\n}];"
+      },
+      "id": "generate-id-timestamp",
+      "name": "Generate Row ID + Timestamp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.__skip }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "filter-event-type",
+      "name": "Only end-of-call-report",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Call Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Row ID":           "={{ $json.row_id }}",
+            "Logged At":        "={{ $json.logged_at }}",
+            "Date":             "={{ $json.date }}",
+            "Time":             "={{ $json.time }}",
+            "Call ID":          "={{ $json.call_id }}",
+            "Call Type":        "={{ $json.call_type }}",
+            "Caller Phone":     "={{ $json.caller_phone }}",
+            "Caller Name":      "={{ $json.caller_name }}",
+            "Assistant":        "={{ $json.assistant_name }}",
+            "Call Started At":  "={{ $json.call_started_at }}",
+            "Call Ended At":    "={{ $json.call_ended_at }}",
+            "Duration":         "={{ $json.duration }}",
+            "Duration (sec)":   "={{ $json.duration_sec }}",
+            "Summary":          "={{ $json.summary }}",
+            "Transcript":       "={{ $json.transcript }}",
+            "Recording URL":    "={{ $json.recording_url }}",
+            "Success Eval":     "={{ $json.success_eval }}",
+            "Structured Data":  "={{ $json.structured_data }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Row ID",          "displayName": "Row ID",          "required": false, "defaultMatch": false, "canBeUsedToMatch": true,  "display": true, "type": "string" },
+            { "id": "Logged At",       "displayName": "Logged At",       "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Date",            "displayName": "Date",            "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Time",            "displayName": "Time",            "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Call ID",         "displayName": "Call ID",         "required": false, "defaultMatch": false, "canBeUsedToMatch": true,  "display": true, "type": "string" },
+            { "id": "Call Type",       "displayName": "Call Type",       "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Caller Phone",    "displayName": "Caller Phone",    "required": false, "defaultMatch": false, "canBeUsedToMatch": true,  "display": true, "type": "string" },
+            { "id": "Caller Name",     "displayName": "Caller Name",     "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Assistant",       "displayName": "Assistant",       "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Call Started At", "displayName": "Call Started At", "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Call Ended At",   "displayName": "Call Ended At",   "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Duration",        "displayName": "Duration",        "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Duration (sec)",  "displayName": "Duration (sec)",  "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "number" },
+            { "id": "Summary",         "displayName": "Summary",         "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Transcript",      "displayName": "Transcript",      "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Recording URL",   "displayName": "Recording URL",   "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Success Eval",    "displayName": "Success Eval",    "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Structured Data", "displayName": "Structured Data", "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "google-sheets-append",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [1020, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, row_id: $('Generate Row ID + Timestamp').first().json.row_id }) }}",
+        "options": {}
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1280, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Generate Row ID + Timestamp", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Row ID + Timestamp": {
+      "main": [
+        [{ "node": "Only end-of-call-report", "type": "main", "index": 0 }]
+      ]
+    },
+    "Only end-of-call-report": {
+      "main": [
+        [{ "node": "Append to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append to Google Sheets": {
+      "main": [
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["28FM", "vapi", "call-log", "google-sheets"],
+  "triggerCount": 0,
+  "updatedAt": "2026-03-22T00:00:00.000Z",
+  "versionId": "1"
+}
