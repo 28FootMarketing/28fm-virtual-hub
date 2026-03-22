@@ -1,0 +1,120 @@
+{
+  "name": "28FM Lead Capture → Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "28fm-lead-capture",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "28fm-lead-capture"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Auto-generate Row ID and Timestamp\nconst now = new Date();\n\n// Row ID: prefix + timestamp ms + random 4-char hex\nconst rowId = 'LEAD-' + now.getTime() + '-' + Math.floor(Math.random() * 0xFFFF).toString(16).toUpperCase().padStart(4, '0');\n\n// ISO 8601 timestamp (matches Supabase format)\nconst timestamp = now.toISOString();\n\n// Human-readable date/time for the sheet\nconst dateFormatted = now.toLocaleDateString('en-US', { year:'numeric', month:'2-digit', day:'2-digit' });\nconst timeFormatted = now.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false });\n\nconst body = $input.first().json.body ?? $input.first().json;\n\nreturn [{\n  json: {\n    row_id:    rowId,\n    timestamp: timestamp,\n    date:      dateFormatted,\n    time:      timeFormatted,\n    name:      body.name   ?? '',\n    email:     body.email  ?? '',\n    phone:     body.phone  ?? '',\n    room:      body.room   ?? '',\n    source:    body.source ?? '28FM Virtual Hub'\n  }\n}];"
+      },
+      "id": "generate-id-timestamp",
+      "name": "Generate Row ID + Timestamp",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Row ID":    "={{ $json.row_id }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Date":      "={{ $json.date }}",
+            "Time":      "={{ $json.time }}",
+            "Name":      "={{ $json.name }}",
+            "Email":     "={{ $json.email }}",
+            "Phone":     "={{ $json.phone }}",
+            "Room":      "={{ $json.room }}",
+            "Source":    "={{ $json.source }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Row ID",    "displayName": "Row ID",    "required": false, "defaultMatch": false, "canBeUsedToMatch": true, "display": true, "type": "string" },
+            { "id": "Timestamp", "displayName": "Timestamp", "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Date",      "displayName": "Date",      "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Time",      "displayName": "Time",      "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Name",      "displayName": "Name",      "required": false, "defaultMatch": false, "canBeUsedToMatch": true,  "display": true, "type": "string" },
+            { "id": "Email",     "displayName": "Email",     "required": false, "defaultMatch": false, "canBeUsedToMatch": true,  "display": true, "type": "string" },
+            { "id": "Phone",     "displayName": "Phone",     "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Room",      "displayName": "Room",      "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" },
+            { "id": "Source",    "displayName": "Source",    "required": false, "defaultMatch": false, "canBeUsedToMatch": false, "display": true, "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "google-sheets-append",
+      "name": "Append to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [760, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, row_id: $('Generate Row ID + Timestamp').first().json.row_id }) }}",
+        "options": {}
+      },
+      "id": "respond-ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1020, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Generate Row ID + Timestamp", "type": "main", "index": 0 }]
+      ]
+    },
+    "Generate Row ID + Timestamp": {
+      "main": [
+        [{ "node": "Append to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Append to Google Sheets": {
+      "main": [
+        [{ "node": "Respond OK", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["28FM", "leads", "google-sheets"],
+  "triggerCount": 0,
+  "updatedAt": "2026-03-22T00:00:00.000Z",
+  "versionId": "1"
+}
